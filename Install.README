@@ -1,0 +1,11 @@
+Follow these steps to install this product:
+
+1) If you want to use a local copy of the mgiconfig product to configure
+   the environment for the install, make sure the MGICONFIG environment
+   variable is set to the location of the mgiconfig product that you
+   want to use.  Otherwise, the install will look for it in the default
+   location (/usr/local/mgi/live/mgiconfig).
+
+2) Copy Configuration.default to Configuration.
+
+3) Run the Install script.

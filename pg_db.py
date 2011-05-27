@@ -1,0 +1,387 @@
+# Module: mp_db.py	(MySQL/Postgres db module)
+# Purpose: to serve as a wrapper over a dbManager (which itself handles both
+#	MySQL and Postgres interaction) in a manner analagous to our existing
+#	db.py module (used for Sybase interaction)
+
+import os
+import sys
+import types
+import re
+import dbManager
+
+# unused globals, but kept for compatability
+
+trace = 0
+sql_client_msg = None
+sql_server_msg = None
+sql_client_msg_threshold = 1
+sql_server_msg_threshold = 1
+sql_cmd_buffer = None
+sql_log_function = None
+sql_log_fd = sys.stderr
+
+# named exceptions, kept for compatability
+
+connection_exc = 'pg_db.connection_exc'
+error = 'pg_db.error'
+
+# connection info
+
+user = 'mgd_public'
+password = 'mgdpub'
+server = 'DEV_MGI'
+database = 'mgd'
+
+onlyOneConnection = 0
+
+targetDatabaseType = 'postgres'
+sharedDbManager = None
+
+autoTranslate = True
+
+commandLogFile = None
+
+###--- Functions ---###
+
+def setAutoTranslate (on = True):
+	global autoTranslate
+	autoTranslate = on
+	return
+
+def __date():
+	return time.strftime('%c', time.localtime(time.time()))
+
+def __getDbManager():
+	if targetDatabaseType == 'postgres':
+		dbmType = dbManager.postgresManager
+	elif targetDatabaseType == 'mysql':
+		dbmType = dbManager.mysqlManager
+
+	dbm = dbmType(server, database, user, password)
+	dbm.setReturnAsSybase(True)
+	return dbm
+
+# catch both != and = WHERE clauses
+equalClause = re.compile ("([\s(])([A-Za-z_\.0-9]+) *(!?=) *'([^']*)'")
+
+# catch both 'in' and 'not in' WHERE clauses
+inClause = re.compile ("([\s(])([A-Za-z_\.0-9]+) *(not)? *(in) *\(('[^)]+)\)",
+	re.IGNORECASE)
+
+# catch "x = y" (for renaming) in the select clause (We catch the easy case
+# here, not worrying about strings with embedded spaces and such.)
+renameClause = re.compile ("([\s])([A-Za-z_0-9]+) *= *(['A-Za-z0-9_\.]+)")
+		
+def translate (cmd):
+	cmd1 = cmd.replace ('"', "'")
+	cmd1 = cmd1.replace ('.offset', '.cmOffset')
+	cmd1 = cmd1.replace (' like ', ' ilike ')
+	cmd1 = cmd1.replace (' LIKE ', ' ILIKE ')
+	cmd1 = cmd1.replace (' null ', ' NULL ')
+	cmd1 = cmd1.replace ('!= NULL', 'is not null')
+	cmd1 = cmd1.replace ('= NULL', 'is null')
+
+	# We want to ensure that any "equals" comparisons in the WHERE section
+	# are done on a case insensitive basis, to match Sybase's behavior.
+
+	wherePos = cmd1.find('where')
+	if wherePos < 0:
+		wherePos = cmd1.find('WHERE')
+
+	if wherePos >= 0:
+		# convert any 'equals' or 'not equals' comparisons
+
+		cmd2 = ''
+		last = 0
+		match = equalClause.search(cmd1, wherePos)
+		while match:
+			start, stop = match.regs[0]
+			cmd2 = cmd2 + cmd1[last:start]
+			cmd2 = cmd2 + " %slower(%s) %s '%s' " % (
+				match.group(1), match.group(2),
+				match.group(3), match.group(4).lower() )
+			last = stop
+			match = equalClause.search(cmd1, last)
+
+		cmd2 = cmd2 + cmd1[last:] 
+
+		# convert any 'in' or 'not in' comparisons
+
+		cmd3 = ''
+		last = 0
+		match = inClause.search(cmd2, wherePos)
+		while match:
+			start, stop = match.regs[0]
+			cmd3 = cmd3 + cmd2[last:start]
+
+			if match.group(3) == None:
+				op = 'in'
+			else:
+				op = 'not in'
+
+			cmd3 = cmd3 + " %slower(%s) %s (%s) " % (
+				match.group(1), match.group(2), op,
+				match.group(5).lower())
+			last = stop
+			match = inClause.search (cmd2, last)
+
+		cmd3 = cmd3 + cmd2[last:]
+	else:
+		cmd3 = cmd1
+
+	# convert any "x = y" notation in the SELECT section to be "y as x",
+	# but leave 'update' statements alone
+
+	updatePos = cmd3.find('update')
+	if updatePos < 0:
+		updatePos = cmd3.find('UPDATE')
+
+	if (updatePos >= 0):
+		# if a 'select' appears before an 'update', then we assume
+		# that the 'update' is just part of a WHERE clause and go
+		# ahead.  if the 'update' is first, then return as-is.
+
+		selectPos = cmd3.find('select')
+		if selectPos < 0:
+			selectPos = cmd3.find('SELECT')
+
+		if (selectPos < 0) or (selectPos > updatePos):
+			return cmd3
+
+	cmd4 = ''
+	last = 0
+	fromPos = cmd3.find('from')
+	if fromPos < 0:
+		fromPos = cmd3.find('FROM')
+	if fromPos < 0:
+		return cmd3
+	match = renameClause.search(cmd3)
+	while match and (match.regs[0][1] < fromPos):
+		start, stop = match.regs[0]
+		cmd4 = cmd4 + cmd3[last:start]
+		cmd4 = cmd4 + match.group(1) + match.group(3) + ' as ' + \
+			match.group(2)
+		last = stop
+		match = renameClause.search(cmd3, last)
+	cmd4 = cmd4 + cmd3[last:]
+	return cmd4
+
+# log functions
+
+def sqlLogCGI (**kw):
+	sqlLogAll(kw)
+	return
+
+def sqlLog (**kw):
+	sqlLogAll(kw)
+	return
+
+def sqlLogAll (**kw):
+	msg = [ 'Date/time: %s' % __date(),
+		'Server: %s' % server,
+		'Database: %s' % database,
+		'User: %s' % user,
+		]
+	keys = kw.keys()
+	keys.sort()
+	for key in keys:
+		if kw[key] == types.ListType:
+			i = 0
+			for item in kw[key]:
+				msg.append ('%s[%d] : %s' % (key, i,
+					str(item)) )
+				i = i + 1
+		else:
+			msg.append ('%s : %s' % (key, str(kw[key])))
+
+	if sql_log_fd:
+		sql_log_fd.write('\n'.join(msg))
+		sql_log_fd.write('\n')
+	return
+
+def logCommand (cmd):
+	if commandLogFile:
+		commandLogFile.write(cmd)
+		commandLogFile.write('\n')
+		commandLogFile.flush()
+	return
+
+# setters
+
+def set_commandLogFile(s):
+	global commandLogFile
+	commandLogFile = open(s, 'w')
+	return
+
+def set_sqlUser(s):
+	global user
+	user = s
+	return
+
+def set_sqlPassword(s):
+	global password
+	password = s
+	return
+
+def set_sqlPasswordFromFile(f):
+	fp = open(f, 'r')
+	s = fp.readline().rstrip()
+	fp.close()
+	set_sqlPassword(s)
+	return
+
+def set_sqlServer(s):
+	global server
+	server = s
+	return
+
+def set_sqlDatabase(s):
+	global database
+	database = s
+	return
+
+def set_sqlLogin (user, password, server, database):
+	old = (user, password, server, database)
+
+	set_sqlUser(user)
+	set_sqlPassword(password)
+	set_sqlServer(server)
+	set_sqlDatabase(database)
+
+	return old
+
+def set_targetDatabaseType (t):
+	global targetDatabaseType
+	targetDatabaseType = t.lower()
+	if targetDatabaseType not in [ 'postgres', 'mysql' ]:
+		raise error, 'Unknown targetDatabaseType: %s' % t
+	return
+
+def useOneConnection (onlyOne = 0):
+	global onlyOneConnection
+	onlyOneConnection = onlyOne
+	return
+
+# getters
+
+def get_commandLogFile():
+	return commandLogFile
+
+def get_sqlUser():
+	return user
+
+def get_sqlPassword():
+	return password
+
+def get_sqlServer():
+	return server
+
+def get_sqlDatabase():
+	return database
+
+def get_targetDatabaseType (t):
+	return targetDatabaseType
+
+# main method
+
+def sql (command, parser = 'auto', **kw):
+	global sharedDbManager
+
+	if not onlyOneConnection:
+		dbm = __getDbManager()
+	else:
+		if not sharedDbManager:
+			sharedDbManager = __getDbManager()
+		dbm = sharedDbManager
+
+	if kw.has_key('row_count'):
+		rowCount = kw['row_count']
+		if rowCount == 0:
+			rowCount = None
+	else:
+		rowCount = None
+
+	singleCommand = False
+	autoParser = (parser == 'auto')
+
+	if type(command) != types.ListType:
+		command = [ command ]
+		singleCommand = True
+
+	if type(parser) != types.ListType:
+		parser = [ parser ] * len(command)
+
+	if rowCount:
+		if type(rowCount) == types.ListType:
+			pass
+		else:
+			if type(rowCount) != types.IntType:
+				rowCount = int(rowType)
+			rowCount = [ rowCount ] * len(command)
+
+	if trace:
+		sys.stderr.write ('Command: %s\n' % str(command))
+		sys.stderr.write ('Parser: %s\n' % str(parser))
+
+	if len(command) != len(parser):
+		raise error, 'Mismatching counts in command and parser'
+	elif rowCount and (len(command) != len(rowCount)):
+		raise error, 'Mismatching counts in command and rowCount'
+
+	resultSets = []
+
+	i = 0
+	while (i < len(command)):
+		cmd = command[i]
+		psr = parser[i]
+
+		selectPos = cmd.find('select')
+		if selectPos < 0:
+			selectPos = cmd.find('SELECT')
+
+		# apply row limits for select statements
+		if rowCount and rowCount[i] and (selectPos >= 0):
+			cmd = cmd + ' limit %d' % rowCount[i]
+
+		if autoTranslate:
+			cmd = translate(cmd)
+
+		logCommand(cmd)
+		results = dbm.execute(cmd)
+
+		if psr != 'auto':
+			for row in results:
+				psr(row)
+		else:
+			resultSets.append (results)
+		i = i + 1
+
+	if not autoParser:
+		return None
+	if singleCommand:
+		return resultSets[0]
+	return resultSets
+
+def commit():
+	if sharedDbManager:
+		sharedDbManager.commit()
+	return
+
+###--- initialization ---###
+
+if os.environ.has_key('MGI_PUBLICUSER'):
+	set_sqlUser (os.environ['MGI_PUBLICUSER'])
+
+if os.environ.has_key('MGI_PUBLICPASSWORD'):
+	sql_sqlPassword (os.environ['MGI_PUBLICPASSWORD'])
+
+if os.environ.has_key('DSQUERY'):
+	set_sqlServer (os.environ['DSQUERY'])
+elif os.environ.has_key('MGD_DBSERVER'):
+	set_sqlServer (os.environ['MGD_DBSERVER'])
+
+if os.environ.has_key('MGD'):
+	set_sqlDatabase (os.environ['MGD'])
+elif os.environ.has_key('MGD_DBNAME'):
+	set_sqlDatabase (os.environ['MGD_DBNAME'])
+
