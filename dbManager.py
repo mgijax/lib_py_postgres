@@ -196,8 +196,8 @@ class dbManager:
 
 	if self.sharedConnection:
 		self.sharedConnection.commit()
-		self.sharedConnection.close()
-	self.sharedConnection = None
+#		self.sharedConnection.close()
+#	self.sharedConnection = None
 	return
 
     def rollback (self):
