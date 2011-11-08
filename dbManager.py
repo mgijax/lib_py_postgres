@@ -350,7 +350,7 @@ class postgresManager (dbManager):
 			elif exc.find('could not translate host') >= 0:
 				msg = 'Unknown host %s' % self.host
 			
-			elif attempts > MAX_ATTEMPTS:
+			elif attempts >= MAX_ATTEMPTS:
 				msg = 'Failed to get connection for %s:%s as %s; giving up (attempt %d)' % (
 					self.host, self.database, self.user,
 					attempts)
