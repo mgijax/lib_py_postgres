@@ -5,6 +5,7 @@
 import os
 import traceback
 import sys
+import time
 import datetime
 
 ###--- Globals ---###
@@ -29,6 +30,19 @@ try:
 	LOADED_POSTGRES_DRIVER = True
 except:
 	pass
+
+# For Postgres, we do not fail immediately if we cannot get a connection due
+# to the server having too many connections.  We want to wait and try again a
+# few times before giving up.  These parameters are specifically for use by
+# the postgresManager:
+
+MAX_ATTEMPTS = 10	# integer; number of attempted connections before fail
+INITIAL_DELAY = 0.1	# integer; initial delay between attempts (in seconds)
+
+# Note that the delay is doubled after each failed attempt to connect (after
+# the first).  This results in delays of:
+#	0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.4, 12.8, and 25.6 seconds
+# for a total of 51.1 seconds before we give up entirely.  
 
 ###--- Classes ---###
 
@@ -294,14 +308,66 @@ class postgresManager (dbManager):
 	# Returns: connection object
 	# Assumes: nothing
 	# Modifies: nothing
-	# Throws: propagates any exceptions from psycopg2.connect() method
+	# Throws: propagates certain exceptions from psycopg2.connect() method
 
 	if not LOADED_POSTGRES_DRIVER:
 		raise Error, \
 		    'Cannot get connection; psycopg2 driver was not loaded'
 
-	return psycopg2.connect (host=self.host, user=self.user,
-		password=self.password, database=self.database)
+	conn = None		# connection to be returned
+	attempts = 0		# number of attempts to get connection so far
+	delay = INITIAL_DELAY	# current delay (in seconds) before next retry
+
+	while not conn:
+		try:
+			attempts = attempts + 1
+			conn = psycopg2.connect (host=self.host,
+				user=self.user, password=self.password,
+				database=self.database)
+		except:
+			(excType, excValue, excTraceback) = sys.exc_info()
+
+			# specific errors to look for from postgres...
+			#	1. bad password or username
+			#	2. bad database
+			#	3. bad server
+			# These ones are fatal, so bail out.  If none of these
+			# are found, assume too many connections and wait to
+			# try again a few times.
+
+			exc = str(excValue)
+			msg = None
+
+			if exc.find('password authentication failed') >= 0:
+				msg = 'Unknown user (%s) or password on %s' \
+					% (self.user, self.host)
+
+			elif (exc.find('database "') >= 0) and \
+					(exc.find('"does not exist') >= 0):
+				msg= 'Unknown database (%s) on %s' % (
+					self.database, self.host)
+			
+			elif exc.find('could not translate host') >= 0:
+				msg = 'Unknown host %s' % self.host
+			
+			elif attempts > MAX_ATTEMPTS:
+				msg = 'Failed to get connection for %s:%s as %s; giving up (attempt %d)' % (
+					self.host, self.database, self.user,
+					attempts)
+
+			if msg:
+				traceback.print_exception (excType, excValue,
+					excTraceback)
+				sys.stderr.write('dbManager: %s\n' % msg)
+				raise Exception (Error, msg)
+			else:
+				sys.stderr.write ('dbManager: Failed to get connection for %s:%s as %s; waiting to retry (attempt %d)\n' % (
+					self.host, self.database, self.user,
+					attempts) )
+
+			time.sleep(delay)
+			delay = delay * 2.0	# double delay for next time
+	return conn
 
 class SybaseDict:
 	def __init__ (self, d = {}):
