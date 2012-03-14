@@ -1,3 +1,9 @@
+TAG: lib_py_postgres-5-0-0-2
+DATE: 03/14/2012
+STAFF: dbm
+CHANGES:
+1) pg_db.py: bug fix
+
 TAG: lib_py_postgres-5-0-0-0
 DATE: 06/13/2011
 STAFF: jsb
