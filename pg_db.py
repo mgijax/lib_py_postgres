@@ -373,7 +373,7 @@ if os.environ.has_key('MGI_PUBLICUSER'):
 	set_sqlUser (os.environ['MGI_PUBLICUSER'])
 
 if os.environ.has_key('MGI_PUBLICPASSWORD'):
-	sql_sqlPassword (os.environ['MGI_PUBLICPASSWORD'])
+	set_sqlPassword (os.environ['MGI_PUBLICPASSWORD'])
 
 if os.environ.has_key('DSQUERY'):
 	set_sqlServer (os.environ['DSQUERY'])
