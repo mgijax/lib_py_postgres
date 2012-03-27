@@ -1,4 +1,4 @@
-# Module: mp_db.py	(MySQL/Postgres db module)
+# Module: pg_db.py	(Postgres db module)
 # Purpose: to serve as a wrapper over a dbManager (which itself handles both
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
@@ -224,10 +224,47 @@ def set_sqlPassword(s):
 	return
 
 def set_sqlPasswordFromFile(f):
-	fp = open(f, 'r')
-	s = fp.readline().rstrip()
-	fp.close()
-	set_sqlPassword(s)
+	# find and set the password for the current user, as found in the file
+	# with the name specified by 'f'.  Note that the password is expected
+	# to be the entire contents of the file's first line.
+
+	try:
+		fp = open(f, 'r')
+		s = fp.readline().rstrip()
+		fp.close()
+		set_sqlPassword(s)
+	except:
+		raise error, 'Cannot read from %s' % f
+	return
+
+def set_sqlPasswordFromPgpass (filename):
+	# find and set the password for the current user, as found in the
+	# given 'filename' (a file formatted as a Postgres .pgpass file)
+
+	try:
+		foundUser = False
+
+		fp = open (filename, 'r')
+		line = fp.readline().strip()
+
+		while line and not foundUser:
+			pieces = line.split(':')
+
+			if len(pieces) == 5:
+				if pieces[3] == user:
+					foundUser = True
+					set_sqlPassword(pieces[4])
+
+			line = fp.readline().strip()
+
+		fp.close()
+
+		if not foundUser:
+		    raise error, \
+			'Could not find user (%s) in %s' % (user, filename)
+	except IOError:
+		raise error, 'Cannot read from %s' % filename
+
 	return
 
 def set_sqlServer(s):
@@ -349,7 +386,9 @@ def sql (command, parser = 'auto', **kw):
 		logCommand(cmd)
 		results = dbm.execute(cmd)
 
-		if psr != 'auto':
+		if psr is None:
+			pass
+		elif psr != 'auto':
 			for row in results:
 				psr(row)
 		else:
@@ -369,19 +408,26 @@ def commit():
 
 ###--- initialization ---###
 
-if os.environ.has_key('MGI_PUBLICUSER'):
-	set_sqlUser (os.environ['MGI_PUBLICUSER'])
+# list of (environment variable name, function to call with its value)
+# so we can easily pick up default settings from the environment.  Note that
+# later options override earlier ones, if multiple environment variables are
+# available.  So, put preferred ones last.  Also note that settings for the
+# user should come before those for a password file.
+environSettings = [
+	('MGI_PUBLICUSER', set_sqlUser),
+	('MGI_PUBLICPASSWORD', set_sqlPassword),
+	('MGD_DBSERVER', set_sqlServer),
+	('DSQUERY', set_sqlServer),
+	('MGD_DBNAME', set_sqlDatabase),
+	('MGD', set_sqlDatabase),
+	('PG_DBSERVER', set_sqlServer),
+	('PG_DBNAME', set_sqlDatabase),
+	('PG_DBUSER', set_sqlUser),
+	('PG_DBPASSWORDFILE', set_sqlPasswordFromPgpass),
+	('PGPASSFILE', set_sqlPasswordFromPgpass),
+	]
 
-if os.environ.has_key('MGI_PUBLICPASSWORD'):
-	set_sqlPassword (os.environ['MGI_PUBLICPASSWORD'])
-
-if os.environ.has_key('DSQUERY'):
-	set_sqlServer (os.environ['DSQUERY'])
-elif os.environ.has_key('MGD_DBSERVER'):
-	set_sqlServer (os.environ['MGD_DBSERVER'])
-
-if os.environ.has_key('MGD'):
-	set_sqlDatabase (os.environ['MGD'])
-elif os.environ.has_key('MGD_DBNAME'):
-	set_sqlDatabase (os.environ['MGD_DBNAME'])
+for (name, fn) in environSettings:
+	if os.environ.has_key(name):
+		fn(os.environ[name])
 
