@@ -216,7 +216,12 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('isExtinct = 0', 'isExtinct is False')
 	cmd1 = cmd1.replace ('isMixed = 1', 'isMixed is True')
 	cmd1 = cmd1.replace ('isMixed = 0', 'isMixed is False')
+	cmd1 = cmd1.replace ('isConditional = 1', 'isConditional is True')
+	cmd1 = cmd1.replace ('isConditional = 0', 'isConditional is False')
 
+	#
+	# convert
+	#
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
 
