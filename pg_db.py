@@ -2,6 +2,10 @@
 # Purpose: to serve as a wrapper over a dbManager (which itself handles both
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
+#
+# 04/09/2012	lec
+#	- autoTranslate_be; translate_be(); setAutoTranslateBE, setTrace
+#
 
 import os
 import sys
@@ -39,6 +43,9 @@ sharedDbManager = None
 
 autoTranslate = True
 
+# back-end-specific translations
+autoTranslate_be = False
+
 commandLogFile = None
 
 ###--- Functions ---###
@@ -46,6 +53,16 @@ commandLogFile = None
 def setAutoTranslate (on = True):
 	global autoTranslate
 	autoTranslate = on
+	return
+
+def setAutoTranslateBE (on = True):
+	global autoTranslate_be
+	autoTranslate_be = on
+	return
+
+def setTrace(on = True):
+	global trace
+	trace = on
 	return
 
 def __date():
@@ -73,6 +90,7 @@ inClause = re.compile ("([\s(])([A-Za-z_\.0-9]+) *(not)? *(in) *\(('[^)]+)\)",
 renameClause = re.compile ("([\s])([A-Za-z_0-9]+) *= *(['A-Za-z0-9_\.]+)")
 		
 def translate (cmd):
+
 	cmd1 = cmd.replace ('"', "'")
 	cmd1 = cmd1.replace ('.offset', '.cmOffset')
 	cmd1 = cmd1.replace (' like ', ' ilike ')
@@ -165,6 +183,35 @@ def translate (cmd):
 		match = renameClause.search(cmd3, last)
 	cmd4 = cmd4 + cmd3[last:]
 	return cmd4
+
+#
+# back-end-specific translations
+#
+def translate_be (cmd):
+
+	#
+	# temporary tables
+	#
+	cmd1 = cmd.replace ('into #', 'into TEMPORARY TABLE ')
+	cmd1 = cmd1.replace ('#', '')
+
+	#
+	# true/false
+	#
+	cmd1 = cmd1.replace ('preferred = 1', 'preferred is True')
+	cmd1 = cmd1.replace ('preferred = 0', 'preferred is False')
+	cmd1 = cmd1.replace ('private = 1', 'preferred is True')
+	cmd1 = cmd1.replace ('private = 0', 'preferred is False')
+	cmd1 = cmd1.replace ('isMutant = 1', 'isMutant is True')
+	cmd1 = cmd1.replace ('isMutant = 0', 'isMutant is False')
+
+	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
+	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
+
+	cmd1 = cmd1.replace ('convert as startC(int, c.startCoordinate)', 'cast(startcoordinate as varchar) as startc')
+	cmd1 = cmd1.replace ('convert as endC(int, c.endCoordinate)', 'cast(endcoordinate as varchar) as endc')
+
+	return cmd1
 
 # log functions
 
@@ -356,10 +403,6 @@ def sql (command, parser = 'auto', **kw):
 				rowCount = int(rowType)
 			rowCount = [ rowCount ] * len(command)
 
-	if trace:
-		sys.stderr.write ('Command: %s\n' % str(command))
-		sys.stderr.write ('Parser: %s\n' % str(parser))
-
 	if len(command) != len(parser):
 		raise error, 'Mismatching counts in command and parser'
 	elif rowCount and (len(command) != len(rowCount)):
@@ -382,6 +425,13 @@ def sql (command, parser = 'auto', **kw):
 
 		if autoTranslate:
 			cmd = translate(cmd)
+
+		if autoTranslate_be:
+			cmd = translate_be(cmd)
+
+	        if trace:
+		        sys.stderr.write ('Command: %s\n' % str(cmd))
+		        sys.stderr.write ('Parser: %s\n' % str(psr))
 
 		logCommand(cmd)
 		results = dbm.execute(cmd)
