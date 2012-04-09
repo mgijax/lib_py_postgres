@@ -210,12 +210,19 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('isMutant = 1', 'isMutant is True')
 	cmd1 = cmd1.replace ('isMutant = 0', 'isMutant is False')
 	cmd1 = cmd1.replace ('isReferenceGene = 1', 'isReferenceGene is True')
+	cmd1 = cmd1.replace ('isWildType = 1', 'isWildType is True')
+	cmd1 = cmd1.replace ('isWildType = 0', 'isWildType is False')
+	cmd1 = cmd1.replace ('isExtinct = 1', 'isExtinct is True')
+	cmd1 = cmd1.replace ('isExtinct = 0', 'isExtinct is False')
+	cmd1 = cmd1.replace ('isMixed = 1', 'isMixed is True')
+	cmd1 = cmd1.replace ('isMixed = 0', 'isMixed is False')
 
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
 
 	cmd1 = cmd1.replace ('convert as startC(int, c.startCoordinate)', 'cast(startcoordinate as varchar) as startc')
 	cmd1 = cmd1.replace ('convert as endC(int, c.endCoordinate)', 'cast(endcoordinate as varchar) as endc')
+	cmd1 = cmd1.replace ('substring(m2.name, 1, 75)', 'm2.name')
 
 	return cmd1
 
