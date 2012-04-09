@@ -204,6 +204,7 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('private = 0', 'preferred is False')
 	cmd1 = cmd1.replace ('isMutant = 1', 'isMutant is True')
 	cmd1 = cmd1.replace ('isMutant = 0', 'isMutant is False')
+	cmd1 = cmd1.replace ('isReferenceGene = 1', 'isReferenceGene is True')
 
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
