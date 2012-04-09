@@ -3,6 +3,9 @@
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
 #
+#  04/09/2012   sc
+#	- returnAsSybase, getReturnAsSybase(), setReturnAsSybase(Boolean)
+#
 # 04/09/2012	lec
 #	- autoTranslate_be; translate_be(); setAutoTranslateBE, setTrace
 #
@@ -41,6 +44,8 @@ onlyOneConnection = 0
 targetDatabaseType = 'postgres'
 sharedDbManager = None
 
+returnAsSybase = True
+
 autoTranslate = True
 
 # back-end-specific translations
@@ -75,7 +80,7 @@ def __getDbManager():
 		dbmType = dbManager.mysqlManager
 
 	dbm = dbmType(server, database, user, password)
-	dbm.setReturnAsSybase(True)
+	dbm.setReturnAsSybase(returnAsSybase)
 	return dbm
 
 # catch both != and = WHERE clauses
@@ -342,6 +347,16 @@ def set_targetDatabaseType (t):
 		raise error, 'Unknown targetDatabaseType: %s' % t
 	return
 
+def setReturnAsSybase (flag         # boolean; True for Sybase-style,
+				    # ...False if not
+    ):
+    # Purpose: configure to either return Sybase-style
+    #       results (True) or not (False)
+
+    global returnAsSybase
+    returnAsSybase = flag
+    return
+
 def useOneConnection (onlyOne = 0):
 	global onlyOneConnection
 	onlyOneConnection = onlyOne
@@ -367,9 +382,18 @@ def get_sqlDatabase():
 def get_targetDatabaseType (t):
 	return targetDatabaseType
 
+def getReturnAsSybase ():
+    # Purpose: return the flag for whether our results are Sybase-style
+    #       (True) or not (False)
+    # Returns: boolean
+
+    return returnAsSybase
+
 # main method
 
 def sql (command, parser = 'auto', **kw):
+ 	# return type is dependent on 'parser' and on the value of
+        # the global returnAsSybase
 	global sharedDbManager
 
 	if not onlyOneConnection:
