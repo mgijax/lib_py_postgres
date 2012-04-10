@@ -237,7 +237,7 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
 
-	items = ['c', 'scc', 'f', 'mcf']
+	items = ['c', 'scc', 'f', 'mcf', 'l']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(int, %s.startCoordinate)' % (x), \
 			'cast(%s.startcoordinate as varchar)' % (x))
@@ -251,7 +251,7 @@ def translate_be (cmd):
 	# creation_date
 	# modification_date
 	#
-	items = ['', 'a.', 'b.', 'e.', 'h.', 'l.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
+	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(char(20), %screation_date, 100)' % (x), \
 			'%screation_date::DATE' % (x))
