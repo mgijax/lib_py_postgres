@@ -201,6 +201,11 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('#', '')
 
 	#
+	# offset
+	#
+	cmd1 = cmd1.replace ('offset', 'cmOffset')
+
+	#
 	# true/false
 	#
 	cmd1 = cmd1.replace ('preferred = 1', 'preferred is True')
