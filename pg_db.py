@@ -245,6 +245,7 @@ def translate_be (cmd):
 			'cast(%s.endcoordinate as varchar)' % (x))
 
 	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
+	cmd1 = cmd1.replace ('convert(char(20), getdate(), 100)', 'current_date as cdate')
 
 	#
 	# creation_date
@@ -256,6 +257,11 @@ def translate_be (cmd):
 			'%screation_date::DATE' % (x))
 	    cmd1 = cmd1.replace ('convert(char(20), %smodification_date, 100)' % (x), \
 			'%smodification_date::DATE' % (x))
+
+	#
+	# case
+	#
+	cmd1 = cmd1.replace ('str(o.cmOffset, 10, 2)', 'to_char(o.cmOffset, \'999.99\')')
 
 	return cmd1
 
