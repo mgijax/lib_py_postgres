@@ -251,7 +251,7 @@ def translate_be (cmd):
 	# creation_date
 	# modification_date
 	#
-	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
+	items = ['', 'a.', 'b.', 'e.', 'h.', 'l.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(char(20), %screation_date, 100)' % (x), \
 			'%screation_date::DATE' % (x))
