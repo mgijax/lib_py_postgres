@@ -220,7 +220,7 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('isConditional = 0', 'isConditional is False')
 
 	#
-	# sbustring()
+	# substring()
 	#
 	cmd1 = cmd1.replace ('substring', 'substr')
 
