@@ -261,7 +261,7 @@ def translate_be (cmd):
 	#
 	# case
 	#
-	cmd1 = cmd1.replace ('str(o.cmOffset, 10, 2)', 'to_char(o.cmOffset, \'999.99\')')
+	cmd1 = cmd1.replace ('str(o.cmOffset,10,2)', 'to_char(o.cmOffset, \'999.99\')')
 
 	return cmd1
 
