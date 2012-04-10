@@ -197,7 +197,7 @@ def translate_be (cmd):
 	#
 	# temporary tables
 	#
-	cmd1 = cmd.replace ('into #', 'into TEMPORARY TABLE ')
+	cmd1 = cmd.replace ('into #', 'INTO TEMPORARY TABLE ')
 	cmd1 = cmd1.replace ('#', '')
 
 	#
@@ -220,11 +220,15 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('isConditional = 0', 'isConditional is False')
 
 	#
+	# sbustring()
+	#
+	cmd1 = cmd1.replace ('substring', 'substr')
+
+	#
 	# convert()
 	#
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
-
 	cmd1 = cmd1.replace ('convert(int, c.startCoordinate)', 'cast(c.startcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, c.endCoordinate)', 'cast(c.endcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, scc.startCoordinate)', 'cast(scc.startCoordinate as varchar)')
@@ -234,11 +238,6 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('convert(int, f.endCoordinate)', 'cast(f.endcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, mcf.startCoordinate)', 'cast(mcf.startcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, mcf.endCoordinate)', 'cast(mcf.endcoordinate as varchar)')
-
-	#
-	# sbustring()
-	#
-	cmd1 = cmd1.replace ('substring', 'substr')
 
 	return cmd1
 
