@@ -225,18 +225,20 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
 
-	cmd1 = cmd1.replace ('convert as startC(int, c.startCoordinate)', 'cast(c.startcoordinate as varchar) as startc')
-	cmd1 = cmd1.replace ('convert as endC(int, c.endCoordinate)', 'cast(c.endcoordinate as varchar) as endc')
+	cmd1 = cmd1.replace ('convert(int, c.startCoordinate)', 'cast(c.startcoordinate as varchar)')
+	cmd1 = cmd1.replace ('convert(int, c.endCoordinate)', 'cast(c.endcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, scc.startCoordinate)', 'cast(scc.startCoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, scc.endCoordinate)', 'cast(scc.endCoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, f.startCoordinate)', 'cast(f.startcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, f.endCoordinate)', 'cast(f.endcoordinate as varchar)')
+	cmd1 = cmd1.replace ('convert(int, mcf.startCoordinate)', 'cast(mcf.startcoordinate as varchar)')
+	cmd1 = cmd1.replace ('convert(int, mcf.endCoordinate)', 'cast(mcf.endcoordinate as varchar)')
 
 	#
 	# sbustring()
 	#
-	cmd1 = cmd1.replace ('substring(m2.name, 1, 75)', 'm2.name')
+	cmd1 = cmd1.replace ('substring', 'substr')
 
 	return cmd1
 
