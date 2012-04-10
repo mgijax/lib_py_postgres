@@ -236,25 +236,26 @@ def translate_be (cmd):
 	#
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
-	cmd1 = cmd1.replace ('convert(int, c.startCoordinate)', 'cast(c.startcoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, c.endCoordinate)', 'cast(c.endcoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, scc.startCoordinate)', 'cast(scc.startCoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, scc.endCoordinate)', 'cast(scc.endCoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, f.startCoordinate)', 'cast(f.startcoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, f.endCoordinate)', 'cast(f.endcoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, mcf.startCoordinate)', 'cast(mcf.startcoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(int, mcf.endCoordinate)', 'cast(mcf.endcoordinate as varchar)')
 
-	cmd1 = cmd1.replace ('convert(char(20), creation_date, 100)', 'creation_date::DATE')
-	cmd1 = cmd1.replace ('convert(char(20), modification_date, 100)', 'modification_date::DATE')
-
-	items = ['a', 'b', 'e', 'h', 'm', 'n', 'p', 'r', 's', 't']
+	items = ['c', 'scc', 'f', 'mcf']
 	for x in items:
-	    cmd1 = cmd1.replace ('convert(char(20), %s.creation_date, 100)' % (x), \
-			'%s.creation_date::DATE' % (x))
-	    cmd1 = cmd1.replace ('convert(char(20), %s.modification_date, 100)' % (x), \
-			'%s.modification_date::DATE' % (x))
+	    cmd1 = cmd1.replace ('convert(int, %s.startCoordinate)' % (x), \
+			'cast(%s.startcoordinate as varchar)' % (x))
+	    cmd1 = cmd1.replace ('convert(int, %s.endCoordinate)' % (x), \
+			'cast(%s.endcoordinate as varchar)' % (x))
+
+	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
+
+	#
+	# creation_date
+	# modification_date
+	#
+	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
+	for x in items:
+	    cmd1 = cmd1.replace ('convert(char(20), %screation_date, 100)' % (x), \
+			'%screation_date::DATE' % (x))
+	    cmd1 = cmd1.replace ('convert(char(20), %smodification_date, 100)' % (x), \
+			'%smodification_date::DATE' % (x))
 
 	return cmd1
 
