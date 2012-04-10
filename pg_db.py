@@ -246,6 +246,16 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('convert(int, mcf.startCoordinate)', 'cast(mcf.startcoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(int, mcf.endCoordinate)', 'cast(mcf.endcoordinate as varchar)')
 
+	cmd1 = cmd1.replace ('convert(char(20), creation_date, 100)', 'creation_date::DATE')
+	cmd1 = cmd1.replace ('convert(char(20), modification_date, 100)', 'modification_date::DATE')
+
+	items = ['a', 'b', 'e', 'h', 'm', 'n', 'p', 'r', 's', 't']
+	for x in items:
+	    cmd1 = cmd1.replace ('convert(char(20), %s.creation_date, 100)' % (x), \
+			'%s.creation_date::DATE' % (x))
+	    cmd1 = cmd1.replace ('convert(char(20), %s.modification_date, 100)' % (x), \
+			'%s.modification_date::DATE' % (x))
+
 	return cmd1
 
 # log functions
