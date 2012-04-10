@@ -210,8 +210,8 @@ def translate_be (cmd):
 	#
 	cmd1 = cmd1.replace ('preferred = 1', 'preferred is True')
 	cmd1 = cmd1.replace ('preferred = 0', 'preferred is False')
-	cmd1 = cmd1.replace ('private = 1', 'preferred is True')
-	cmd1 = cmd1.replace ('private = 0', 'preferred is False')
+	cmd1 = cmd1.replace ('private = 1', 'private is True')
+	cmd1 = cmd1.replace ('private = 0', 'private is False')
 	cmd1 = cmd1.replace ('standard = 1', 'standard is True')
 	cmd1 = cmd1.replace ('standard = 0', 'standard is False')
 	cmd1 = cmd1.replace ('isMutant = 1', 'isMutant is True')
