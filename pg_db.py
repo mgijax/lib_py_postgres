@@ -250,13 +250,15 @@ def translate_be (cmd):
 	#
 	# creation_date
 	# modification_date
+	# this set of converts are used primarly by the 'markerfeed' product
+	# '%screation_date::DATE' % (x))
 	#
 	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(char(20), %screation_date, 100)' % (x), \
-			'%screation_date::DATE' % (x))
+			'to_char(%screation_date, \'Mon DD YYYY HH:MMPM\')' % (x))
 	    cmd1 = cmd1.replace ('convert(char(20), %smodification_date, 100)' % (x), \
-			'%smodification_date::DATE' % (x))
+			'to_char(%smodification_date, \'Mon DD YYYY HH:MMPM\')' % (x))
 
 	#
 	# case
