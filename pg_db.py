@@ -196,14 +196,25 @@ def translate_be (cmd):
 
 	#
 	# temporary tables
+	# order is important!
 	#
+
+	# make sure the 'insert into #' is fixed first
+	cmd1 = cmd.replace ('insert into #', 'insert into')
+
+	# any remaining 'into #' is expected to the the initial creation of the temp table
 	cmd1 = cmd.replace ('into #', 'INTO TEMPORARY TABLE ')
+
+	# any remaining references to the temp table
 	cmd1 = cmd1.replace ('#', '')
+
+	# end: temporary tables
 
 	#
 	# offset
 	#
 	cmd1 = cmd1.replace ('offset', 'cmOffset')
+	# end: offset
 
 	#
 	# true/false
@@ -225,11 +236,13 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('isMixed = 0', 'isMixed is False')
 	cmd1 = cmd1.replace ('isConditional = 1', 'isConditional is True')
 	cmd1 = cmd1.replace ('isConditional = 0', 'isConditional is False')
+	# end: true/false
 
 	#
 	# substring()
 	#
 	cmd1 = cmd1.replace ('substring', 'substr')
+	# end: substring()
 
 	#
 	# convert()
@@ -246,6 +259,7 @@ def translate_be (cmd):
 
 	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(char(20), getdate(), 100)', 'current_date as cdate')
+	# end: convert()
 
 	#
 	# creation_date
@@ -259,11 +273,13 @@ def translate_be (cmd):
 			'to_char(%screation_date, \'Mon DD YYYY HH:MMPM\')' % (x))
 	    cmd1 = cmd1.replace ('convert(char(20), %smodification_date, 100)' % (x), \
 			'to_char(%smodification_date, \'Mon DD YYYY HH:MMPM\')' % (x))
+	# end: creation_date/modification_date
 
 	#
 	# case
 	#
 	cmd1 = cmd1.replace ('str(o.cmOffset,10,2)', 'to_char(o.cmOffset, \'999.99\')')
+	# end: case
 
 	return cmd1
 
