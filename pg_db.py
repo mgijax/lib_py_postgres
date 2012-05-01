@@ -3,7 +3,7 @@
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
 #
-#  04/09/2012   sc
+# 04/09/2012   sc
 #	- returnAsSybase, getReturnAsSybase(), setReturnAsSybase(Boolean)
 #
 # 04/09/2012	lec
@@ -250,6 +250,7 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('convert(varchar(10), g.modification_date, 112)', 'g.modification_date::DATE')
 	cmd1 = cmd1.replace ('convert(char(10), t.completion_date, 112)', 't.completion_date::DATE')
 
+	# improve this; use regular expression
 	items = ['c', 'scc', 'f', 'mcf', 'l']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(int, %s.startCoordinate)' % (x), \

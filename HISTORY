@@ -1,3 +1,9 @@
+TAG: lib_py_postgres-5-0-0-3
+DATE: 05/01/2012
+STAFF: lec
+CHANGES:
+1) pg_db.py: additions for back-end templates, etc.
+
 TAG: lib_py_postgres-5-0-0-2
 DATE: 03/14/2012
 STAFF: dbm
