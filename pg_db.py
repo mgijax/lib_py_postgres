@@ -380,8 +380,15 @@ def set_sqlPasswordFromPgpass (filename):
 		if not foundUser:
 		    raise error, \
 			'Could not find user (%s) in %s' % (user, filename)
-	except IOError:
-		raise error, 'Cannot read from %s' % filename
+	except:
+		#raise error, 'Cannot read from %s' % filename
+
+		# This should no longer be an error state, as some servers do
+		# not have the pgdbutilities product installed.  In case of
+		# error, we just silently ignore the failure here and let any
+		# calling scripts fail on their own, as needed.
+
+		pass
 
 	return
 
