@@ -210,33 +210,21 @@ def translate_be (cmd):
 
 	# end: temporary tables
 
-	#
-	# offset
-	#
-	cmd1 = cmd1.replace ('offset', 'cmOffset')
-	# end: offset
+	# queries across different schemas
+	# sybase: uses schema..table (imsr..Label)
+	# postgres: uses schema.table (imsr.Label)
+	cmd1 = cmd1.replace ('..', '.')
 
 	#
-	# true/false
+	# copies from translate()
 	#
-	cmd1 = cmd1.replace ('preferred = 1', 'preferred is True')
-	cmd1 = cmd1.replace ('preferred = 0', 'preferred is False')
-	cmd1 = cmd1.replace ('private = 1', 'private is True')
-	cmd1 = cmd1.replace ('private = 0', 'private is False')
-	cmd1 = cmd1.replace ('standard = 1', 'standard is True')
-	cmd1 = cmd1.replace ('standard = 0', 'standard is False')
-	cmd1 = cmd1.replace ('isMutant = 1', 'isMutant is True')
-	cmd1 = cmd1.replace ('isMutant = 0', 'isMutant is False')
-	cmd1 = cmd1.replace ('isReferenceGene = 1', 'isReferenceGene is True')
-	cmd1 = cmd1.replace ('isWildType = 1', 'isWildType is True')
-	cmd1 = cmd1.replace ('isWildType = 0', 'isWildType is False')
-	cmd1 = cmd1.replace ('isExtinct = 1', 'isExtinct is True')
-	cmd1 = cmd1.replace ('isExtinct = 0', 'isExtinct is False')
-	cmd1 = cmd1.replace ('isMixed = 1', 'isMixed is True')
-	cmd1 = cmd1.replace ('isMixed = 0', 'isMixed is False')
-	cmd1 = cmd1.replace ('isConditional = 1', 'isConditional is True')
-	cmd1 = cmd1.replace ('isConditional = 0', 'isConditional is False')
-	# end: true/false
+	cmd1 = cmd1.replace ('offset', 'cmOffset')
+	cmd1 = cmd1.replace (' like ', ' ilike ')
+	cmd1 = cmd1.replace (' LIKE ', ' ILIKE ')
+	cmd1 = cmd1.replace (' null ', ' NULL ')
+	cmd1 = cmd1.replace ('!= NULL', 'is not null')
+	cmd1 = cmd1.replace ('= NULL', 'is null')
+	# end: offset
 
 	#
 	# substring()
@@ -527,8 +515,8 @@ def sql (command, parser = 'auto', **kw):
 			cmd = translate_be(cmd)
 
 	        if trace:
-		        sys.stderr.write ('Command: %s\n' % str(cmd))
-		        sys.stderr.write ('Parser: %s\n' % str(psr))
+		        sys.stderr.write ('pg command: %s\n' % str(cmd))
+		        sys.stderr.write ('pg parser: %s\n' % str(psr))
 
 		logCommand(cmd)
 		results = dbm.execute(cmd)
