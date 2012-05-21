@@ -7,6 +7,7 @@ import traceback
 import sys
 import time
 import datetime
+import mgi_utils
 
 ###--- Globals ---###
 
@@ -131,14 +132,12 @@ class dbManager:
 	#	cannot execute the given 'cmd'
 
 	# instantiate a connection, if we have not yet done so
-
 	if not self.sharedConnection:
 		self.sharedConnection = self.getConnection()
 
 	# get a cursor for executing the desired SQL statement
 
 	cursor = self.sharedConnection.cursor()
-
 	try:
 		cursor.execute (cmd)
 	except StandardError, e:
@@ -369,6 +368,32 @@ class postgresManager (dbManager):
 			delay = delay * 2.0	# double delay for next time
 	return conn
 
+    def executeCopyFrom(
+
+	    self, 
+	    file, 	    # file-like object to read data from. 
+			    #   It must have read() AND readline() methods.
+	    table, 	    # name of the table to copy data into.
+	    sep='\t', 	    # columns separator expected in the file. 
+			    #   Defaults to a tab.
+	    null='\\\N',    # textual representation of NULL in the file. 
+			    #   The default is the two characters string \N.
+	    size=8192, 	    # size of the buffer used to read from the file.
+	    columns=None    # iterable with name of the columns to import. The
+			    #  length and types should match the content of the
+			    #  file to read. If not specified, it is assumed 
+			    #  that the entire table matches the file structure.
+	    ):
+	cursor = self.sharedConnection.cursor()
+	try:
+	    cursor.copy_from(file, table, sep, null, size, columns)
+        except StandardError, e:
+                self.sharedConnection.rollback()
+                cursor.close()
+                raise Exception (Error,
+                        'Command failed (%s) Error: %s' % (cmd, str(e.args)))
+	return
+
 class SybaseDict:
 	def __init__ (self, d = {}):
 		self.myDict = d
@@ -447,11 +472,9 @@ def _asSybase (
 	# Assumes: nothing
 	# Modifies: nothing
 	# Throws: nothing
-
 	columns, rows = columnsAndRows
 
 	sybRows = []
-
 	for row in rows:
 		sybRow = {}
 
@@ -464,5 +487,4 @@ def _asSybase (
 			i = i + 1
 
 		sybRows.append (SybaseDict(sybRow))
-
 	return sybRows

@@ -272,7 +272,29 @@ def translate_be (cmd):
 
 	return cmd1
 
-# log functions
+def  executeCopyFrom(
+	file,           # file-like object to read data from.
+			#   It must have read() AND readline() methods.
+	table,          # name of the table to copy data into.
+	sep='\t',       # columns separator expected in the file.
+			#   Defaults to a tab.
+	null='\\\N',    # textual representation of NULL in the file.
+			#   The default is the two characters string \N.
+	size=8192,      # size of the buffer used to read from the file.
+	columns=None):  # iterable with name of the columns to import. The
+			#  length and types should match the content of the
+			#  file to read. If not specified, it is assumed
+			#  that the entire table matches the file structure.
+	global sharedDbManager
+
+        if not onlyOneConnection:
+                dbm = __getDbManager()
+        else:
+                if not sharedDbManager:
+                        sharedDbManager = __getDbManager()
+                dbm = sharedDbManager
+        dbm.executeCopyFrom(file, table, sep, null, size, columns)
+	return
 
 def sqlLogCGI (**kw):
 	sqlLogAll(kw)

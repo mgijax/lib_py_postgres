@@ -1,3 +1,10 @@
+TAG: lib_py_postgres-5-0-0-6
+DATE: 05/21/2012
+STAFF: 
+CHANGES:
+1) pg_db.py - added executeCopyFrom function
+2) dbManager.py - added executeCopyFrom function
+
 TAG: lib_py_postgres-5-0-0-5
 DATE: 05/17/2012
 STAFF: lec
