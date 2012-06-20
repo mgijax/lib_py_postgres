@@ -14,6 +14,7 @@ import os
 import sys
 import types
 import re
+import time
 import dbManager
 
 # unused globals, but kept for compatability
@@ -265,10 +266,22 @@ def translate_be (cmd):
 	# end: creation_date/modification_date
 
 	#
+	# datepart -> date_part
+	#
+	cmd1 = cmd1.replace("datepart(year,", "date_part('year',")
+
+	#
 	# case
 	#
 	cmd1 = cmd1.replace ('str(o.cmOffset,10,2)', 'to_char(o.cmOffset, \'999.99\')')
 	# end: case
+
+	#
+	# 'E' as source
+	# 'L' as source
+	#
+	cmd1 = cmd1.replace("'E' as source", "'E'::text as source")
+	cmd1 = cmd1.replace("'L' as source", "'L'::text as source")
 
 	return cmd1
 
@@ -537,6 +550,7 @@ def sql (command, parser = 'auto', **kw):
 			cmd = translate_be(cmd)
 
 	        if trace:
+		        sys.stderr.write ('pg date: %s\n' % __date())
 		        sys.stderr.write ('pg command: %s\n' % str(cmd))
 		        sys.stderr.write ('pg parser: %s\n' % str(psr))
 
@@ -555,7 +569,8 @@ def sql (command, parser = 'auto', **kw):
 	if not autoParser:
 		return None
 	if singleCommand:
-		return resultSets[0]
+		return results
+		#return resultSets[0]
 	return resultSets
 
 def commit():

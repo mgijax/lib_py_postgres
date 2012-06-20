@@ -1,3 +1,9 @@
+TAG: lib_py_postgres-5-0-0-7
+DATE: 06/20/2012
+STAFF: 
+CHANGES:
+1) pg_db.py - update translate_be()
+
 TAG: lib_py_postgres-5-0-0-6
 DATE: 05/21/2012
 STAFF: 
