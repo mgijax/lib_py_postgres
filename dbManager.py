@@ -2,6 +2,15 @@
 # Purpose: to provide a simple, consistent, convenient mechanism for working
 #	with MySQL and Postgres database connections
 
+#
+# 06/25/2012	lec
+#	- TR10994/postgres cleanup - exporter
+#	we are removing the exporter/bin/dbManger.py and replacing it with
+#	this library.  during comparisons of the dbManger/library and the
+#	dbManager/exporter, we found one "bug"...'import psycopg2' appeared
+#	twice near the try/except block.
+#
+
 import os
 import traceback
 import sys
@@ -25,7 +34,6 @@ try:
 except:
 	pass
 
-import psycopg2
 try:
 	import psycopg2
 	LOADED_POSTGRES_DRIVER = True

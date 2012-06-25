@@ -266,7 +266,7 @@ def translate_be (cmd):
 	# end: creation_date/modification_date
 
 	#
-	# datepart -> date_part
+	# datepart(year, ...) -> date_part('year', ...)
 	#
 	cmd1 = cmd1.replace("datepart(year,", "date_part('year',")
 
