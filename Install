@@ -77,7 +77,7 @@ done
 #
 # Create a sym-link for "pg_db_py" to "db.py" for linux servers
 #
-if [ `uname -s` == "Linux" ]
+if [ `uname -s` = "Linux" ]
 then
     echo "creating sym-link (Linux only)"
     cd ${LIBRARY_DIRECTORY}
