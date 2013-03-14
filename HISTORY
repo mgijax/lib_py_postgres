@@ -1,3 +1,9 @@
+TAG: lib_py_postgres-?
+DATE: 03/14/2013
+STAFF: lec
+CHANGES:
+1) TR11248/Install: add Linux sym-link
+
 TAG: lib_py_postgres-5-0-0-8
 TAG: lib_py_postgres-5-0-0-7
 DATE: 06/20/2012, 06/25/2012
