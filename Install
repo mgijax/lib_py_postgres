@@ -82,7 +82,7 @@ then
     echo "creating sym-link (Linux only)"
     cd ${LIBRARY_DIRECTORY}
     rm -rf db.py*
-    ln -s ${LIBRARY_DIRECTORY}/pg_db_py db.py
+    ln -s ${LIBRARY_DIRECTORY}/pg_db.py db.py
 fi
 
 exit 0
