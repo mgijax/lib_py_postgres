@@ -1,3 +1,9 @@
+TAG: exporter-5-1-4-2
+DATE: 2013/07/02
+STAFF: kstone
+CHANGES:
+1) refactorered postgresTextCleaner.py to lib_py_postgres
+
 TAG: lib_py_postgres-5-1-4-1
 DATE: 03/14/2013, 05/28/2013
 STAFF: lec
