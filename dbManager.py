@@ -403,6 +403,11 @@ class postgresManager (dbManager):
 	return
 
 class SybaseDict:
+	"""
+	Sybase representation of a Result/Row
+	for emulating database access from sybase scripts 
+	to a postgres database
+	"""
 	def __init__ (self, d = {}):
 		self.myDict = d
 		return
@@ -432,6 +437,9 @@ class SybaseDict:
 
 	def __repr__ (self):
 		return str(self.myDict)
+
+	def __len__ (self):
+		return len(self.myDict)
 
 	def resolve (self, key):
 		if self.myDict.has_key(key):
