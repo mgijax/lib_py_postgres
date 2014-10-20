@@ -98,6 +98,12 @@ renameClause = re.compile ("([\s])([A-Za-z_0-9]+) *= *(['A-Za-z0-9_\.]+)")
 def translate (cmd):
 
 	cmd1 = cmd.replace ('"', "'")
+
+	# handle date conversions
+	cmd1 = cmd1.replace ('convert(char(10),', 'to_char(')
+	cmd1 = cmd1.replace (', 101)', ', \'MM/dd/yyyy\')')
+	cmd1 = cmd1.replace ('dateadd(day, 1, g.cdate)', '(g.cdate + interval \'1 day\')')
+
 	cmd1 = cmd1.replace ('.offset', '.cmOffset')
 	cmd1 = cmd1.replace (' like ', ' ilike ')
 	cmd1 = cmd1.replace (' LIKE ', ' ILIKE ')
@@ -275,6 +281,11 @@ def translate_be (cmd):
 	#
 	cmd1 = cmd1.replace ('str(o.cmOffset,10,2)', 'to_char(o.cmOffset, \'999.99\')')
 	# end: case
+
+	#
+	# GXD_EarlyPapers.py str() usage
+	#
+	cmd1 = cmd1 .replace ('str(br.year) + \' \' + ','br.year || \' \' || ')
 
 	#
 	# 'E' as source
