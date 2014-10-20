@@ -255,6 +255,7 @@ def translate_be (cmd):
 
 	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
 	cmd1 = cmd1.replace ('convert(char(20), getdate(), 100)', 'current_date as cdate')
+	cmd1 = cmd1.replace('convert(varchar(2), t.stage)', 't.stage::text')
 	# end: convert()
 
 	#
