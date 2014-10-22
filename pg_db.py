@@ -3,6 +3,9 @@
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
 #
+# 10/22/2014	ks/lec
+#	- TR11750/postgres
+#
 # 04/09/2012   sc
 #	- returnAsSybase, getReturnAsSybase(), setReturnAsSybase(Boolean)
 #
@@ -274,8 +277,10 @@ def translate_be (cmd):
 
 	#
 	# datepart(year, ...) -> date_part('year', ...)
+	# datepart(month, ...) -> date_part('month', ...)
 	#
 	cmd1 = cmd1.replace("datepart(year,", "date_part('year',")
+	cmd1 = cmd1.replace("datepart(month,", "date_part('month',")
 
 	#
 	# case
@@ -286,7 +291,7 @@ def translate_be (cmd):
 	#
 	# GXD_EarlyPapers.py str() usage
 	#
-	cmd1 = cmd1 .replace ('str(br.year) + \' \' + ','br.year || \' \' || ')
+	cmd1 = cmd1.replace ('str(br.year) + \' \' + ','br.year || \' \' || ')
 
 	#
 	# 'E' as source
