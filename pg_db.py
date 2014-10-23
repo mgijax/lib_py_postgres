@@ -295,6 +295,11 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('str(br.year) + \' \' + ','br.year || \' \' || ')
 
 	#
+	# MRK_NoGO.py text conversions
+	#
+	cmd1 = cmd1.replace ('\'no \'','\'no \'::text')
+
+	#
 	# 'E' as source
 	# 'L' as source
 	#
