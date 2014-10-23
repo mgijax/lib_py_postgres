@@ -279,6 +279,7 @@ def translate_be (cmd):
 	# datepart(year, ...) -> date_part('year', ...)
 	# datepart(month, ...) -> date_part('month', ...)
 	#
+	cmd1 = cmd1.replace("getdate()", "current_date")
 	cmd1 = cmd1.replace("datepart(year,", "date_part('year',")
 	cmd1 = cmd1.replace("datepart(month,", "date_part('month',")
 
