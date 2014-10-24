@@ -214,6 +214,7 @@ def translate_be (cmd):
 
 	# any remaining 'into #' is expected to the the initial creation of the temp table
 	cmd1 = cmd1.replace ('into #', 'INTO TEMPORARY TABLE ')
+	cmd1 = cmd1.replace ('drop table', 'drop table if exists')
 
 	# any remaining references to the temp table
 	cmd1 = cmd1.replace ('#', '')
