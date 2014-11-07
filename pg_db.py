@@ -102,6 +102,15 @@ def translate (cmd):
 
 	cmd1 = cmd.replace ('"', "'")
 
+	#
+	# GO regex conversions
+	# 
+	cmd1 = cmd1.replace ('not like \'[A-Z][0-9][0-9][0-9][0-9][0-9]\'',
+		'!~ \'[a-zA-Z][0-9][0-9][0-9][0-9][0-9]$\'') 
+	cmd1 = cmd1.replace ('not like \'[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9][0-9]\'',
+		'!~ \'[a-zA-Z][a-zA-Z][0-9][0-9][0-9][0-9][0-9][0-9]$\'') 
+
+
 	# handle date conversions
 	cmd1 = cmd1.replace ('convert(char(10),', 'to_char(')
 	cmd1 = cmd1.replace (', 101)', ', \'MM/dd/yyyy\')')
@@ -203,6 +212,7 @@ def translate (cmd):
 # back-end-specific translations
 #
 def translate_be (cmd):
+
 
 	#
 	# temporary tables
