@@ -206,7 +206,21 @@ def translate (cmd):
 		last = stop
 		match = renameClause.search(cmd3, last)
 	cmd4 = cmd4 + cmd3[last:]
-	return cmd4
+
+	cmd1 = cmd4
+
+	# convert delete from <table> from other tables syntax
+	cmdlower = cmd1.lower()
+	if 'delete' in cmdlower:
+		from1 = cmdlower.find('from')
+		from2 = cmd1.find('from', from1 + 1) 
+		if from2 < 0:
+		    from2 = cmd1.find('FROM', from1 + 1) 
+		
+		if from2 > 0:
+			cmd1 = cmd1[:from2] + "USING" + cmd1[(from2 + 4):]
+
+	return cmd1
 
 #
 # back-end-specific translations
@@ -307,6 +321,11 @@ def translate_be (cmd):
 	# GXD_EarlyPapers.py str() usage
 	#
 	cmd1 = cmd1.replace ('str(br.year) + \' \' + ','br.year || \' \' || ')
+
+	#
+	# mrklabel.py str concat
+	#
+	cmd1 = cmd1.replace ('commonName + \'', 'commonName || \'')
 
 	#
 	# MRK_NoGO.py text conversions
