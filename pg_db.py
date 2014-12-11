@@ -102,6 +102,16 @@ def translate (cmd):
 
 	cmd1 = cmd.replace ('"', "'")
 
+	# convert exec statement for stored procedures
+	cmdlower = cmd1.lower()
+	if 'exec' in cmdlower:
+		execIdx = cmdlower.find('exec')
+		sp_args = cmd1[(execIdx+4):].split(' ',1)
+		sp = sp_args[0]
+		args = sp_args[1]
+		cmd1 = "select * from %s(%s);" % (sp, args)
+
+
 	#
 	# GO regex conversions
 	# 
