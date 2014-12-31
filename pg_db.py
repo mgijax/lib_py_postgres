@@ -109,8 +109,7 @@ def translate (cmd):
 		sp_args = cmd1[(execIdx+4):].lstrip().split(' ',1)
 		sp = sp_args[0]
 		args = sp_args[1]
-		cmd1 = "select * from %s(%s);" % (sp, args)
-
+		cmd1 = "select * from %s (%s);" % (sp, args)
 
 	#
 	# GO regex conversions
@@ -131,7 +130,10 @@ def translate (cmd):
 	cmd1 = cmd1.replace (' LIKE ', ' ILIKE ')
 	cmd1 = cmd1.replace (' null ', ' NULL ')
 	cmd1 = cmd1.replace ('!= NULL', 'is not null')
-	cmd1 = cmd1.replace ('= NULL', 'is null')
+
+	# do not change the "= NULL" to "is" if the "= NULL" exists within an update statement
+	if 'update ' not in cmd1.lower():
+		cmd1 = cmd1.replace ('= NULL', 'is null')
 
 	# We want to ensure that any "equals" comparisons in the WHERE section
 	# are done on a case insensitive basis, to match Sybase's behavior.
@@ -268,8 +270,12 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace (' LIKE ', ' ILIKE ')
 	cmd1 = cmd1.replace (' null ', ' NULL ')
 	cmd1 = cmd1.replace ('!= NULL', 'is not null')
-	cmd1 = cmd1.replace ('= NULL', 'is null')
-	# end: offset
+
+	# do not change the "= NULL" to "is" if the "= NULL" exists within an update statement
+	if 'update ' not in cmd1.lower():
+		cmd1 = cmd1.replace ('= NULL', 'is null')
+
+	# end: translate()
 
 	#
 	# substring()
