@@ -1,5 +1,6 @@
+TAG: lib_py_postgres-5-2-1-2
 TAG: lib_py_postgres-5-2-1-1
-DATE: 2014/12/17
+DATE: 2015/01/02, 2014/12/17
 STAFF: kstone, lec
 CHANGES:
 1) TR11750/adding more translations/pg_db.py
