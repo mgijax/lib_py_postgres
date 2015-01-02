@@ -38,10 +38,14 @@ error = 'pg_db.error'
 
 # connection info
 
-user = 'mgd_public'
-password = 'mgdpub'
-server = 'DEV_MGI'
-database = 'mgd'
+# removed these sybase settings
+#user = 'mgd_public'
+#password = 'mgdpub'
+#server = 'DEV_MGI'
+#database = 'mgd'
+
+# this will set the default password for the default user (mgd_dbo)
+password = open(os.environ['PG_1LINE_PASSFILE'], 'r').readline().strip()
 
 onlyOneConnection = 0
 
@@ -658,12 +662,6 @@ def commit():
 # available.  So, put preferred ones last.  Also note that settings for the
 # user should come before those for a password file.
 environSettings = [
-	('MGI_PUBLICUSER', set_sqlUser),
-	('MGI_PUBLICPASSWORD', set_sqlPassword),
-	('MGD_DBSERVER', set_sqlServer),
-	('DSQUERY', set_sqlServer),
-	('MGD_DBNAME', set_sqlDatabase),
-	('MGD', set_sqlDatabase),
 	('PG_DBSERVER', set_sqlServer),
 	('PG_DBNAME', set_sqlDatabase),
 	('PG_DBUSER', set_sqlUser),
