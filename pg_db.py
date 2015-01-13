@@ -108,7 +108,7 @@ def translate (cmd):
 
 	# convert exec statement for stored procedures
 	cmdlower = cmd1.lower()
-	if 'exec' in cmdlower:
+	if 'exec ' in cmdlower:
 		execIdx = cmdlower.find('exec')
 		sp_args = cmd1[(execIdx+4):].lstrip().split(' ',1)
 		sp = sp_args[0]

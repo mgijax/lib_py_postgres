@@ -1,3 +1,10 @@
+TAG: lib_py_postgres-5-2-1-?
+DATE: 01/13/2015
+STAFF: lec
+CHANGES:
+1) TR11750/adding more translations/pg_db.py
+fixed:pg_db.py: "exec" => "exec " translation must include space
+
 TAG: lib_py_postgres-5-2-1-3
 TAG: lib_py_postgres-5-2-1-2
 TAG: lib_py_postgres-5-2-1-1
