@@ -38,14 +38,11 @@ error = 'pg_db.error'
 
 # connection info
 
-# removed these sybase settings
-#user = 'mgd_public'
-#password = 'mgdpub'
-#server = 'DEV_MGI'
-#database = 'mgd'
-
 # this will set the default password for the default user (mgd_dbo)
-password = open(os.environ['PG_1LINE_PASSFILE'], 'r').readline().strip()
+try:
+        password = open(os.environ['PG_1LINE_PASSFILE'], 'r').readline().strip()
+except:
+        password = 'mgdpub'
 
 onlyOneConnection = 0
 
