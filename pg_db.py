@@ -223,15 +223,15 @@ def translate (cmd):
 	cmd1 = cmd4
 
 	# convert delete from <table> from other tables syntax
-	cmdlower = cmd1.lower()
-	if 'delete' in cmdlower:
-		from1 = cmdlower.find('from')
-		from2 = cmd1.find('from', from1 + 1) 
-		if from2 < 0:
-		    from2 = cmd1.find('FROM', from1 + 1) 
-		
-		if from2 > 0:
-			cmd1 = cmd1[:from2] + "USING" + cmd1[(from2 + 4):]
+	#cmdlower = cmd1.lower()
+	#if 'delete' in cmdlower:
+	#	from1 = cmdlower.find('from')
+	#	from2 = cmd1.find('from', from1 + 1) 
+	#	if from2 < 0:
+	#	    from2 = cmd1.find('FROM', from1 + 1) 
+	#	
+	#	if from2 > 0:
+	#		cmd1 = cmd1[:from2] + "USING" + cmd1[(from2 + 4):]
 
 	return cmd1
 

@@ -1,3 +1,11 @@
+TAG: lib_py_postgres-5-2-1-5
+DATE: 01/14/2015
+STAFF: lec
+CHANGES:
+1) TR11750/
+pg_db.py:def translate()/USING not working
+commented this out until it is fixed
+
 TAG: lib_py_postgres-5-2-1-4
 DATE: 01/14/2015
 STAFF: lec
