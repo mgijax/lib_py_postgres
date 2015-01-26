@@ -344,6 +344,11 @@ def translate_be (cmd):
 	cmd1 = cmd1.replace ('identity(10)', 'row_number() over()')
 
 	#
+	# create clustered index
+	#
+	cmd1 = cmd1.replace ('clustered index', 'index')
+
+	#
 	# replace sybase schema syntax
 	#
 	cmd1 = cmd1.replace ('..', '.')
@@ -357,7 +362,7 @@ def translate_be (cmd):
 		if from2 < 0:
 		    from2 = cmd1.find('FROM', from1 + 1) 
 		
-		if from2 > deleteIdx:
+		if from2 > deleteIdx and 'select' not in cmd1[:from2].lower():
 			cmd1 = cmd1[:from2] + "USING" + cmd1[(from2 + 4):]
 
 	#
