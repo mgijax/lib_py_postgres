@@ -7,7 +7,7 @@
 
 import sys,os.path
 # adjust the path for running the tests locally, so that it can find the modules (1 dir up)
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 import unittest
 
 from pg_db import translate, translate_be
@@ -248,6 +248,18 @@ class SybaseAllTranslatorTest(unittest.TestCase):
 		delete from mrk_marker
 		USING prb_probe_marker pm
 		where pm._marker_key=mrk_marker._marker_key
+		'''
+		self.assertEquals(expected, self.translateAll(sql))
+
+	### test cross-schema query ###
+	def test_cross_schema(self):
+		sql = '''
+		select * from mgd..acc_accession a
+		join radar..acc_accession ar
+		'''
+		expected = '''
+		select * from mgd.acc_accession a
+		join radar.acc_accession ar
 		'''
 		self.assertEquals(expected, self.translateAll(sql))
 		
