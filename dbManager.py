@@ -16,7 +16,6 @@ import traceback
 import sys
 import time
 import datetime
-import mgi_utils
 
 ###--- Globals ---###
 

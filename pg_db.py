@@ -97,7 +97,7 @@ inClause = re.compile ("([\s(])([A-Za-z_\.0-9]+) *(not)? *(in) *\(('[^)]+)\)",
 
 # catch "x = y" (for renaming) in the select clause (We catch the easy case
 # here, not worrying about strings with embedded spaces and such.)
-renameClause = re.compile ("([\s])([A-Za-z_0-9]+) *= *(['A-Za-z0-9_\.]+)")
+renameClause = re.compile ("([\s])([A-Za-z_0-9]+) *= *([^\s,]+)")
 		
 def translate (cmd):
 
@@ -152,7 +152,7 @@ def translate (cmd):
 		while match:
 			start, stop = match.regs[0]
 			cmd2 = cmd2 + cmd1[last:start]
-			cmd2 = cmd2 + " %slower(%s) %s '%s' " % (
+			cmd2 = cmd2 + "%slower(%s) %s '%s'" % (
 				match.group(1), match.group(2),
 				match.group(3), match.group(4).lower() )
 			last = stop
@@ -174,7 +174,7 @@ def translate (cmd):
 			else:
 				op = 'not in'
 
-			cmd3 = cmd3 + " %slower(%s) %s (%s) " % (
+			cmd3 = cmd3 + "%slower(%s) %s (%s)" % (
 				match.group(1), match.group(2), op,
 				match.group(5).lower())
 			last = stop
@@ -540,6 +540,12 @@ def setReturnAsSybase (flag         # boolean; True for Sybase-style,
     global returnAsSybase
     returnAsSybase = flag
     return
+
+def set_sqlLogFunction(f):
+	""" 
+	stub to support backward compatibility
+	"""
+	pass
 
 def useOneConnection (onlyOne = 0):
 	global onlyOneConnection
