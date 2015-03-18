@@ -291,7 +291,7 @@ def translate_be (cmd):
 			'cast(%s.endcoordinate as varchar)' % (x))
 
 	cmd1 = cmd1.replace ('convert(int, sgt.pointCoordinate)', 'cast(sgt.pointCoordinate as varchar)')
-	cmd1 = cmd1.replace ('convert(char(20), getdate(), 100)', 'current_date as cdate')
+	cmd1 = cmd1.replace ('convert(char(20), getdate(), 100)', 'current_date')
 	cmd1 = cmd1.replace('convert(varchar(2), t.stage)', 't.stage::text')
 	# end: convert()
 
@@ -301,7 +301,7 @@ def translate_be (cmd):
 	# this set of converts are used primarly by the 'markerfeed' product
 	# '%screation_date::DATE' % (x))
 	#
-	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.']
+	items = ['', 'a.', 'b.', 'e.', 'h.', 'm.', 'n.', 'p.', 'r.', 's.', 't.', 'va.']
 	for x in items:
 	    cmd1 = cmd1.replace ('convert(char(20), %screation_date, 100)' % (x), \
 			'to_char(%screation_date, \'Mon DD YYYY HH:MMPM\')' % (x))
