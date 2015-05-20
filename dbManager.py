@@ -39,6 +39,24 @@ try:
 except:
 	pass
 
+if LOADED_POSTGRES_DRIVER:
+	#
+	# For software compatibility we convert all Decimals to float
+	#	Psycopg2 sets Numerics as Decimal by default
+	#
+	import psycopg2.extensions
+
+	def decimalToFloat(value, curs):
+		if value != None:
+			return float(value)
+		return None
+
+	DEC2FLOAT = psycopg2.extensions.new_type(
+		psycopg2._psycopg.DECIMAL.values,
+		'DEC2FLOAT',
+		decimalToFloat)
+	psycopg2.extensions.register_type(DEC2FLOAT)
+
 # For Postgres, we do not fail immediately if we cannot get a connection due
 # to the server having too many connections.  We want to wait and try again a
 # few times before giving up.  These parameters are specifically for use by
