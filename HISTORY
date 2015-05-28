@@ -1,9 +1,14 @@
+TAG: lib_py_postgres-5-2-2-1
+DATE: 05/28/2015
+STAFF: lec
+CHANGES:
+1) TR12029/stats_pg.py/see pgdbutilities/bin/measurements
+
 TAG: lib_py_postgres-5-2-1-7
 DATE: 05/21/2015
 STAFF: kstone
 CHANGES:
 1) dbManager convert all Numeric/Decimal to float
-
 
 TAG: lib_py_postgres-5-2-1-6
 DATE: 01/14/2015
