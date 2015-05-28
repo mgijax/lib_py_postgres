@@ -973,11 +973,12 @@ def recordMeasurement (
 	#	both.
 
 	if intValue != None:
-		sql ('exec MGI_recordMeasurement "%s", %d' % (
-			abbrev, intValue))
+		cmd = 'select * from MGI_recordMeasurement (\'%s\', %d);commit;' % (abbrev, intValue)
 	else:
-		sql ('exec MGI_recordMeasurement "%s", null, %1.5f' % (
-			abbrev, floatValue))
+		cmd = 'select * from MGI_recordMeasurement (\'%s\', null, %1.5f);commit;' % (abbrev, floatValue)
+
+	sql (cmd)
+
 	return
 
 #-----------------------------------------------------------------------------
