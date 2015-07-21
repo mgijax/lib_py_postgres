@@ -645,9 +645,8 @@ def sql (command, parser = 'auto', **kw):
 			cmd = translate_be(cmd)
 
 	        if trace:
-		        sys.stderr.write ('pg date: %s\n' % __date())
-		        sys.stderr.write ('pg command: %s\n' % str(cmd))
-		        sys.stderr.write ('pg parser: %s\n' % str(psr))
+		        sys.stderr.write ('%s\n' % str(cmd))
+		        #sys.stderr.write ('pg parser: %s\n' % str(psr))
 
 		logCommand(cmd)
 		results = dbm.execute(cmd)
