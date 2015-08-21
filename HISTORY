@@ -1,8 +1,7 @@
 TAG: lib_py_postgres-6-0-0-2
 DATE: 08/21/2015
 STAFF: kstone
-1) removed all_marker_assoc table
-2) added _modifiedby_key + modification_date for allele/marker assoc change
+1) Added bcp(), disableIndices(), and reenableIndices() methods
 
 TAG: lib_py_postgres-6-0-0-1
 DATE: 07/22/2015
