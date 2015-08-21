@@ -44,7 +44,8 @@ try:
 except:
         password = 'mgdpub'
 
-onlyOneConnection = 0
+# The default should be to always use one connection
+onlyOneConnection = 1
 
 targetDatabaseType = 'postgres'
 sharedDbManager = None
@@ -666,6 +667,90 @@ def sql (command, parser = 'auto', **kw):
 		return results
 		#return resultSets[0]
 	return resultSets
+
+
+def bcp(inputFileName,
+	table,
+	delimiter='\\t',
+	schema='mgd',
+	disableTriggers=False):
+    """
+    BCP inputFile into table
+	using delimiter for column seperation
+
+	NOTE: disabling triggers locks entire table for
+		other connections during transaction
+		until commit or rollback
+    """
+
+    bcpCommand = "copy %s.%s from STDIN with null as '' delimiter as E'%s' " % \
+        (schema, table, delimiter)
+
+
+    # open file for STDIN read
+    inputFile = open(inputFileName, 'r')
+
+    
+    if disableTriggers:
+        disableTrigger = "ALTER TABLE %s.%s DISABLE TRIGGER USER" % \
+            (schema, table)
+        sql(disableTrigger, None)
+        
+    try:
+        cur = sharedDbManager.sharedConnection.cursor()
+        cur.copy_expert(bcpCommand, inputFile)
+    finally:
+        inputFile.close()
+
+    if disableTriggers:
+        enableTrigger = "ALTER TABLE %s.%s ENABLE TRIGGER USER" % \
+            (schema, table)
+        sql(enableTrigger, None)
+
+
+# record of 'create index' commands by table
+# 	logged after every disableIndices() call
+#	used by reenableIndices()
+INDEX_CREATE_COMMANDS = {}
+
+def disableIndices(table):
+    """
+    Disable all indices on table
+	to be restored by reenableIndices()
+    """
+    global INDEX_CREATE_COMMANDS
+    table = table.lower()
+    
+    # find current indices
+    results = sql("""select indexname, indexdef 
+        from pg_indexes 
+        where tablename='%s'
+    """, "auto")
+
+    INDEX_CREATE_COMMANDS[table] = []
+
+    for result in results:
+        INDEX_CREATE_COMMANDS[table].append(result['indexdef'])
+        sql("DROP INDEX %s" % results['indexname'], None)
+    
+
+
+def reenableIndices(table):
+    """
+    re-enable indices on table
+	only after a call to disableIndices()
+	on the same table
+    """
+    table = table.lower()
+
+    if table not in INDEX_CREATE_COMMANDS:
+        raise Exception("""
+            Cannot re-enable indices for %s. No record of disabled indices
+        """ % table)
+
+    for createCommand in INDEX_CREATE_COMMANDS[table]:
+        sql(createCommand, None)
+
 
 def commit():
 	if sharedDbManager:
