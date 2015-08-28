@@ -52,24 +52,10 @@ sharedDbManager = None
 
 returnAsSybase = True
 
-autoTranslate = True
-
-# back-end-specific translations
-autoTranslate_be = False
-
 commandLogFile = None
 
 ###--- Functions ---###
 
-def setAutoTranslate (on = True):
-	global autoTranslate
-	autoTranslate = on
-	return
-
-def setAutoTranslateBE (on = True):
-	global autoTranslate_be
-	autoTranslate_be = on
-	return
 
 def setTrace(on = True):
 	global trace
@@ -638,12 +624,6 @@ def sql (command, parser = 'auto', **kw):
 		# apply row limits for select statements
 		if rowCount and rowCount[i] and (selectPos >= 0):
 			cmd = cmd + ' limit %d' % rowCount[i]
-
-		if autoTranslate:
-			cmd = translate(cmd)
-
-		if autoTranslate_be:
-			cmd = translate_be(cmd)
 
 	        if trace:
 		        sys.stderr.write ('%s\n' % str(cmd))
