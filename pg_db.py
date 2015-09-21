@@ -683,8 +683,11 @@ def bcp(inputFileName,
 		until commit or rollback
     """
 
-    bcpCommand = "copy %s.%s from STDIN with null as '' delimiter as E'%s' " % \
-        (schema, table, delimiter)
+    if schema:
+	table = '%s.%s' % (schema, table)
+
+    bcpCommand = "copy %s from STDIN with null as '' delimiter as E'%s' " % \
+        (table, delimiter)
 
 
     # open file for STDIN read
@@ -692,8 +695,8 @@ def bcp(inputFileName,
 
     
     if disableTriggers:
-        disableTrigger = "ALTER TABLE %s.%s DISABLE TRIGGER USER" % \
-            (schema, table)
+        disableTrigger = "ALTER TABLE %s DISABLE TRIGGER USER" % \
+            (table)
         sql(disableTrigger, None)
         
     try:
@@ -703,8 +706,8 @@ def bcp(inputFileName,
         inputFile.close()
 
     if disableTriggers:
-        enableTrigger = "ALTER TABLE %s.%s ENABLE TRIGGER USER" % \
-            (schema, table)
+        enableTrigger = "ALTER TABLE %s ENABLE TRIGGER USER" % \
+            (table)
         sql(enableTrigger, None)
 
 
