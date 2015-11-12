@@ -25,7 +25,11 @@ LOADED_POSTGRES_DRIVER = False	# have we loaded the Postgres python module?
 MYSQL = 'MySQL'			# constant; identifies type of dbManager
 POSTGRES = 'Postgres'		# constant; identifies type of dbManager
 
-Error = 'dbManager.Error'    # string; exception to be raised in this module
+class DbManagerError(Exception):
+	"""
+	Custom error class
+	"""
+	pass
 
 try:
 	import MySQLdb
@@ -117,7 +121,7 @@ class dbManager:
 	elif passwordFile:
 		self.password = _readPasswordFile (passwordFile)
 	else:
-		raise Error, 'Could not initialize; no password specified'
+		raise DbManagerError('Could not initialize; no password specified')
 	return
 
     def getConnection (self):
@@ -133,7 +137,7 @@ class dbManager:
 	except:
 		(excType, excValue, excTraceback) = sys.exc_info()
 		traceback.print_exception (excType, excValue, excTraceback)
-		raise Exception (Error,
+		raise DbManagerError (
 			'Cannot get connection to %s:%s as %s' % (self.host,
 				self.database, self.user) )
 	return connection
@@ -168,7 +172,7 @@ class dbManager:
 	except StandardError, e:
 		self.sharedConnection.rollback()
 		cursor.close()
-		raise Exception (Error,
+		raise DbManagerError (
 			'Command failed (%s) Error: %s' % (cmd, str(e.args)))
 			#'Command failed (%s) Error %s : %s' % (cmd,
 			#e.args[0], e.args[1]) )
@@ -264,8 +268,8 @@ class dbManager:
 	# Throws: Error if it does not know the type of database
 
 	if not self.dbType:
-		raise Error, 'Cannot instantiate dbManager class ' + \
-			'directly; must use a subclass'
+		raise DbManagerError('Cannot instantiate dbManager class ' + \
+			'directly; must use a subclass')
 	return
 
     def _getConnection (self):
@@ -276,7 +280,7 @@ class dbManager:
 	# Modifies: nothing
 	# Throws: Error if this method was not re-implemented in 'self'
 
-	raise Error, 'Must implement _getConnection() in a subclass'
+	raise DbManagerError( 'Must implement _getConnection() in a subclass')
 
     def _setDbType (self):
 	# Purpose: to set the database type for this dbManager; this is an
@@ -287,7 +291,7 @@ class dbManager:
 	# Modifies: nothing
 	# Throws: Error if this method was not re-implemented in 'self'
 
-	raise Error, 'Must implement _setDbType() in a subclass'
+	raise DbManagerError('Must implement _setDbType() in a subclass')
 
 class mysqlManager (dbManager):
     # Is: a dbManager that knows how to interact with MySQL
@@ -309,8 +313,8 @@ class mysqlManager (dbManager):
 	# Throws: propagates any exceptions from MySQLdb.connect() method
 
 	if not LOADED_MYSQL_DRIVER:
-		raise Error, \
-		    'Cannot get connection; MySQLdb driver was not loaded'
+		raise DbManagerError( \
+		    'Cannot get connection; MySQLdb driver was not loaded')
 
 	return MySQLdb.connect (host=self.host, user=self.user,
 		passwd=self.password, db=self.database, local_infile=1)
@@ -335,8 +339,8 @@ class postgresManager (dbManager):
 	# Throws: propagates certain exceptions from psycopg2.connect() method
 
 	if not LOADED_POSTGRES_DRIVER:
-		raise Error, \
-		    'Cannot get connection; psycopg2 driver was not loaded'
+		raise DbManagerError( \
+		    'Cannot get connection; psycopg2 driver was not loaded')
 
 	conn = None		# connection to be returned
 	attempts = 0		# number of attempts to get connection so far
@@ -383,7 +387,7 @@ class postgresManager (dbManager):
 				traceback.print_exception (excType, excValue,
 					excTraceback)
 				sys.stderr.write('dbManager: %s\n' % msg)
-				raise Exception (Error, msg)
+				raise DbManagerError (msg)
 			else:
 				sys.stderr.write ('dbManager: Failed to get connection for %s:%s as %s; waiting to retry (attempt %d)\n' % (
 					self.host, self.database, self.user,
@@ -415,7 +419,7 @@ class postgresManager (dbManager):
         except StandardError, e:
                 self.sharedConnection.rollback()
                 cursor.close()
-                raise Exception (Error,
+                raise DbManagerError (
                         'Command failed (%s) Error: %s' % (cmd, str(e.args)))
 	return
 
@@ -439,7 +443,7 @@ class SybaseDict:
 		try:
 			self.resolve(key)
 			return True
-		except Error:
+		except:
 			return False
 
 	def __getitem__ (self, key):
@@ -469,8 +473,8 @@ class SybaseDict:
 		if lowerKey == 'offset':
 			return self.resolve('cmOffset')
 
-		raise Error, 'Unknown key (%s) from: %s' % (key,
-			self.myDict.keys() )
+		raise DbManagerError( 'Unknown key (%s) from: %s' % (key,
+			self.myDict.keys() ) )
 
 ###--- Functions ---###
 
@@ -485,13 +489,13 @@ def _readPasswordFile (
 	# Throws: Exception if we cannot read the password file
 
 	if not os.path.exists(file):
-		raise Exception(Error, 'Unknown password file: %s' % file)
+		raise DbManagerError( 'Unknown password file: %s' % file)
 	try:
 		fp = open(file, 'r')
 		password = fp.readline().trim()
 		fp.close()
 	except:
-		raise Exception(Error, 'Cannot read password file: %s' % file)
+		raise DbManagerError( 'Cannot read password file: %s' % file)
 	return password
 
 def _asSybase (
