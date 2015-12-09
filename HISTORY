@@ -1,3 +1,9 @@
+TAG: lib_py_postgres-6-0-2-1
+DATE: 12/09/2015
+STAFF: lec
+1) created TR12070 tag, but not sure what has changed
+dbManager.py was changed after the 08/2015 tag but was not tagged?
+
 TAG: lib_py_postgres-6-0-0-2
 DATE: 08/21/2015
 STAFF: kstone
