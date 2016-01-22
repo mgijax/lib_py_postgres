@@ -1,3 +1,8 @@
+TAG: lib_py_postgres-6-0-2-2
+DATE: 1/22/2016
+STAFF: kstone
+1) TR12235 - fix translator for probe report
+
 TAG: lib_py_postgres-6-0-2-1
 DATE: 12/09/2015
 STAFF: lec
