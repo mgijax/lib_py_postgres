@@ -221,6 +221,19 @@ class SybaseAllTranslatorTest(unittest.TestCase):
 		'''
 		self.assertEquals(expected, self.translateAll(sql))
 
+	def test_string_not_in_already_lowered(self):
+		sql = '''
+			select * from
+			mrk_marker m
+			where lower(m.symbol) not in ('pax6','kit')
+		'''
+		expected = '''
+			select * from
+			mrk_marker m
+			where lower(m.symbol) not in ('pax6','kit')
+		'''
+		self.assertEquals(expected, self.translateAll(sql))
+
 
 	### Test Temp Tables ###
 	def test_select_temp_table(self):
@@ -262,6 +275,7 @@ class SybaseAllTranslatorTest(unittest.TestCase):
 		join radar.acc_accession ar
 		'''
 		self.assertEquals(expected, self.translateAll(sql))
+
 		
 
 if __name__ == '__main__':

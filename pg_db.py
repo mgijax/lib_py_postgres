@@ -175,7 +175,14 @@ def translate (cmd):
 			else:
 				op = 'not in'
 
-			cmd3 = cmd3 + "%slower(%s) %s (%s)" % (
+			if match.group(2) == 'not':
+				cmd3 = cmd3 + "%s%s %s (%s)" % (
+				    match.group(1), match.group(2), op,
+				    match.group(5).lower()
+				)
+
+			else:
+			    cmd3 = cmd3 + "%slower(%s) %s (%s)" % (
 				match.group(1), match.group(2), op,
 				match.group(5).lower())
 			last = stop
