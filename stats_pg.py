@@ -199,7 +199,8 @@ class Statistic:
 
 		results = sql('''SELECT *
 			FROM MGI_Statistic
-			WHERE abbreviation = "%s"''' % abbrev)
+			WHERE abbreviation = '%s'
+			''' % abbrev)
 
 		if len(results) < 1:
 			raise ERROR, 'Unknown statistic: %s' % abbrev
@@ -282,9 +283,8 @@ class Statistic:
 			WHERE ms._Set_key = msm._Set_key
 				AND ms._MGIType_key = (SELECT _MGIType_key
 						FROM ACC_MGIType
-						WHERE name = "Statistic")
-				AND msm._Object_key = %d''' % \
-					self.statisticKey)
+						WHERE name = 'Statistic')
+				AND msm._Object_key = %d''' % self.statisticKey)
 
 		# collect all the various groups containing this statistic
 
@@ -407,9 +407,8 @@ class Statistic:
 
 		self.name = name
 		sql ('''UPDATE MGI_Statistic
-			SET name = "%s"
-			WHERE _Statistic_key = %d''' % (name,
-				self.statisticKey))
+			SET name = '%s'
+			WHERE _Statistic_key = %d''' % (name, self.statisticKey))
 		return
 
 	#---------------------------------------------------------------------
@@ -426,9 +425,8 @@ class Statistic:
 
 		self.definition = definition
 		sql ('''UPDATE MGI_Statistic
-			SET definition = "%s"
-			WHERE _Statistic_key = %d''' % (definition,
-				self.statisticKey))
+			SET definition = '%s'
+			WHERE _Statistic_key = %d''' % (definition, self.statisticKey))
 		return
 
 	#---------------------------------------------------------------------
@@ -528,8 +526,9 @@ class StatisticGroup:
 				FROM MGI_Set
 				WHERE _MGIType_key = (SELECT _MGIType_key
 						FROM ACC_MGIType
-						WHERE name = "Statistic")
-					AND name = "%s"''' % name)
+						WHERE name = 'Statistic')
+					AND name = '%s'
+				''' % name)
 		if not results:
 			raise ERROR, "No statistic group named '%s'" % name
 		elif len(results) > 1:
@@ -561,11 +560,6 @@ class StatisticGroup:
 		#	Statistic objects
 		# Throws: global 'ERROR' if we have problems interacting with
 		#	the database
-
-#		cmd = '''SELECT abbreviation
-#			FROM MGI_Statistic_View
-#			WHERE groupName = "%s"
-#			ORDER BY sequenceNum''' % self.name
 
 		cmd = '''select distinct ms.abbreviation, msm.sequenceNum
 			from MGI_Set mset,
@@ -760,7 +754,8 @@ def getStatisticByName (
 
 	results = sql('''SELECT abbreviation 
 		FROM MGI_Statistic 
-		WHERE name = "%s"''' % statName)
+		WHERE name = '%s'
+		''' % statName)
 
 	if not results:
 		raise ERROR, 'Unknown statistic name: %s' % statName
@@ -813,7 +808,7 @@ def getAllGroups ():
 		FROM MGI_Set
 		WHERE _MGIType_key = (SELECT _MGIType_key
 				FROM ACC_MGIType
-				WHERE name = "Statistic")
+				WHERE name = 'Statistic')
 		ORDER BY sequenceNum''')
 	groups = []
 	for row in results:
@@ -854,7 +849,8 @@ def createStatisticGroup (
 
 	results = sql('''SELECT _MGIType_key 
 			FROM ACC_MGIType 
-			WHERE name = "Statistic"''')
+			WHERE name = 'Statistic'
+		      ''')
 	if (not results):
 		raise ERROR, 'Unknown MGI Type: Statistic'
 
@@ -863,7 +859,8 @@ def createStatisticGroup (
 	results = sql('''SELECT _Set_key
 		FROM MGI_Set
 		WHERE _MGIType_key = %d
-			AND name = "%s"''' % (statisticType, groupName))
+			AND name = '%s'
+		      ''' % (statisticType, groupName))
 	if results:
 		raise ERROR, 'Group name "%s" already exists' % groupName
 
@@ -905,10 +902,10 @@ def createStatistic (
 
 	results = sql('''SELECT _Statistic_key
 		FROM MGI_Statistic
-		WHERE abbreviation = "%s"''' % abbrev)
+		WHERE abbreviation = '%s'
+		''' % abbrev)
 	if results:
-		raise ERROR, "Attempted to add an existing abbreviation: %s" \
-				% abbrev
+		raise ERROR, "Attempted to add an existing abbreviation: %s" % abbrev
 
 	# find what the next available statistic key would be
 
