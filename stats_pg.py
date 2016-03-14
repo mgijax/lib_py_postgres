@@ -199,7 +199,8 @@ class Statistic:
 
 		results = sql('''SELECT *
 			FROM MGI_Statistic
-			WHERE abbreviation = "%s"''' % abbrev)
+			WHERE abbreviation = '%s'
+			''' % abbrev)
 
 		if len(results) < 1:
 			raise ERROR, 'Unknown statistic: %s' % abbrev
@@ -282,7 +283,7 @@ class Statistic:
 			WHERE ms._Set_key = msm._Set_key
 				AND ms._MGIType_key = (SELECT _MGIType_key
 						FROM ACC_MGIType
-						WHERE name = "Statistic")
+						WHERE name = 'Statistic')
 				AND msm._Object_key = %d''' % \
 					self.statisticKey)
 
@@ -407,7 +408,7 @@ class Statistic:
 
 		self.name = name
 		sql ('''UPDATE MGI_Statistic
-			SET name = "%s"
+			SET name = '%s'
 			WHERE _Statistic_key = %d''' % (name,
 				self.statisticKey))
 		return
@@ -426,7 +427,7 @@ class Statistic:
 
 		self.definition = definition
 		sql ('''UPDATE MGI_Statistic
-			SET definition = "%s"
+			SET definition = '%s'
 			WHERE _Statistic_key = %d''' % (definition,
 				self.statisticKey))
 		return
@@ -498,7 +499,7 @@ class Statistic:
 			statSql = statSql[255:]
 			i = i + 1
 			sql ('''INSERT MGI_StatisticSql
-				VALUES (%d, %d, "%s")''' % (self.statisticKey,
+				VALUES (%d, %d, '%s')''' % (self.statisticKey,
 					i,
 					part))
 		return
@@ -528,8 +529,9 @@ class StatisticGroup:
 				FROM MGI_Set
 				WHERE _MGIType_key = (SELECT _MGIType_key
 						FROM ACC_MGIType
-						WHERE name = "Statistic")
-					AND name = "%s"''' % name)
+						WHERE name = 'Statistic')
+					AND name = '%s'
+					''' % name)
 		if not results:
 			raise ERROR, "No statistic group named '%s'" % name
 		elif len(results) > 1:
@@ -561,11 +563,6 @@ class StatisticGroup:
 		#	Statistic objects
 		# Throws: global 'ERROR' if we have problems interacting with
 		#	the database
-
-#		cmd = '''SELECT abbreviation
-#			FROM MGI_Statistic_View
-#			WHERE groupName = "%s"
-#			ORDER BY sequenceNum''' % self.name
 
 		cmd = '''select distinct ms.abbreviation, msm.sequenceNum
 			from MGI_Set mset,
@@ -760,7 +757,8 @@ def getStatisticByName (
 
 	results = sql('''SELECT abbreviation 
 		FROM MGI_Statistic 
-		WHERE name = "%s"''' % statName)
+		WHERE name = '%s'
+		''' % statName)
 
 	if not results:
 		raise ERROR, 'Unknown statistic name: %s' % statName
@@ -813,7 +811,7 @@ def getAllGroups ():
 		FROM MGI_Set
 		WHERE _MGIType_key = (SELECT _MGIType_key
 				FROM ACC_MGIType
-				WHERE name = "Statistic")
+				WHERE name = 'Statistic')
 		ORDER BY sequenceNum''')
 	groups = []
 	for row in results:
@@ -854,7 +852,8 @@ def createStatisticGroup (
 
 	results = sql('''SELECT _MGIType_key 
 			FROM ACC_MGIType 
-			WHERE name = "Statistic"''')
+			WHERE name = 'Statistic'
+			''')
 	if (not results):
 		raise ERROR, 'Unknown MGI Type: Statistic'
 
@@ -863,9 +862,10 @@ def createStatisticGroup (
 	results = sql('''SELECT _Set_key
 		FROM MGI_Set
 		WHERE _MGIType_key = %d
-			AND name = "%s"''' % (statisticType, groupName))
+			AND name = '%s'
+			''' % (statisticType, groupName))
 	if results:
-		raise ERROR, 'Group name "%s" already exists' % groupName
+		raise ERROR, "Group name '%s' already exists" % groupName
 
 	results = sql('SELECT MAX(_Set_key) FROM MGI_Set')
 	if (not results) or (not results[0]['']):
@@ -880,7 +880,7 @@ def createStatisticGroup (
 		seqNum = results[0][''] + 1
 
 	sql('''INSERT MGI_Set (_Set_key, _MGIType_key, name, sequenceNum)
-		VALUES (%d, %d, "%s", %d)''' % \
+		VALUES (%d, %d, '%s', %d)''' % \
 			(setKey, statisticType, groupName, seqNum))
 	return StatisticGroup(groupName)
 
@@ -905,7 +905,8 @@ def createStatistic (
 
 	results = sql('''SELECT _Statistic_key
 		FROM MGI_Statistic
-		WHERE abbreviation = "%s"''' % abbrev)
+		WHERE abbreviation = '%s'
+		''' % abbrev)
 	if results:
 		raise ERROR, "Attempted to add an existing abbreviation: %s" \
 				% abbrev
@@ -922,7 +923,7 @@ def createStatistic (
 
 	sql('''INSERT MGI_Statistic (_Statistic_key, name, abbreviation,
 			definition, isPrivate, hasIntValue)
-		VALUES (%d, "%s", "%s", "%s", %d, %d)''' % (statKey,
+		VALUES (%d, '%s', '%s', '%s', %d, %d)''' % (statKey,
 			statName, abbrev, statDef, isPrivate, hasIntValue))
 	return Statistic(abbrev)
 

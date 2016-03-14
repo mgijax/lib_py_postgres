@@ -1,3 +1,8 @@
+TAG: lib_py_postgres-6-0-3-1
+DATE: 03/14/2016
+STAFF: lec
+1) fix stats_pg.py/SQL/needs sinqle quotes
+
 TAG: lib_py_postgres-tr12223
 DATE: 03/10/2016
 STAFF: lec
