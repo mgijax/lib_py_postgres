@@ -496,7 +496,7 @@ class Statistic:
 			statSql = statSql[255:]
 			i = i + 1
 			sql ('''INSERT MGI_StatisticSql
-				VALUES (%d, %d, "%s")''' % (self.statisticKey,
+				VALUES (%d, %d, '%s')''' % (self.statisticKey,
 					i,
 					part))
 		return
@@ -862,7 +862,7 @@ def createStatisticGroup (
 			AND name = '%s'
 		      ''' % (statisticType, groupName))
 	if results:
-		raise ERROR, 'Group name "%s" already exists' % groupName
+		raise ERROR, "Group name '%s' already exists" % groupName
 
 	results = sql('SELECT MAX(_Set_key) FROM MGI_Set')
 	if (not results) or (not results[0]['']):
@@ -877,7 +877,7 @@ def createStatisticGroup (
 		seqNum = results[0][''] + 1
 
 	sql('''INSERT MGI_Set (_Set_key, _MGIType_key, name, sequenceNum)
-		VALUES (%d, %d, "%s", %d)''' % \
+		VALUES (%d, %d, '%s', %d)''' % \
 			(setKey, statisticType, groupName, seqNum))
 	return StatisticGroup(groupName)
 
@@ -919,7 +919,7 @@ def createStatistic (
 
 	sql('''INSERT MGI_Statistic (_Statistic_key, name, abbreviation,
 			definition, isPrivate, hasIntValue)
-		VALUES (%d, "%s", "%s", "%s", %d, %d)''' % (statKey,
+		VALUES (%d, '%s', '%s', '%s', %d, %d)''' % (statKey,
 			statName, abbrev, statDef, isPrivate, hasIntValue))
 	return Statistic(abbrev)
 
