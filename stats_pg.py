@@ -488,17 +488,9 @@ class Statistic:
 		sql ('''DELETE FROM MGI_StatisticSql 
 			WHERE _Statistic_key = %d''' % self.statisticKey)
 
-		# We need to store the SQL in chunks of 255 characters.
+		sql ('''INSERT MGI_StatisticSql
+		        VALUES (%d, 1, '%s')''' % (self.statisticKey, statSql))
 
-		i = 0
-		while statSql:
-			part = statSql[:255]
-			statSql = statSql[255:]
-			i = i + 1
-			sql ('''INSERT MGI_StatisticSql
-				VALUES (%d, %d, '%s')''' % (self.statisticKey,
-					i,
-					part))
 		return
 
 #-----------------------------------------------------------------------------
