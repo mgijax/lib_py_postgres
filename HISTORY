@@ -1,3 +1,8 @@
+TAG: lib_py_postgres-6-0-3-2
+DATE: 03/16/2016
+STAFF: lec
+1) stats_pg.py/remove 255 chunk/all SQL can be stored in one chunk
+
 TAG: lib_py_postgres-6-0-3-1
 DATE: 03/14/2016
 STAFF: lec
