@@ -87,14 +87,11 @@ do
 done
 
 #
-# Create a sym-link for "pg_db_py" to "db.py" for linux servers
+# Create a sym-link for "pg_db_py" to "db.py"
 #
-if [ `uname -s` = "Linux" ]
-then
-    echo "creating sym-link (Linux only)"
-    cd ${LIBRARY_DIRECTORY}
-    rm -rf db.py*
-    ln -s ${LIBRARY_DIRECTORY}/pg_db.py db.py
-fi
+echo "creating sym-link"
+cd ${LIBRARY_DIRECTORY}
+rm -rf db.py*
+ln -s ${LIBRARY_DIRECTORY}/pg_db.py db.py
 
 exit 0
