@@ -78,6 +78,7 @@ chmod 664 *.pyc
 #
 for FILE in `ls *.py *.pyc`
 do
+    rm -f ${LIBRARY_DIRECTORY}/${FILE}
     cp -p ${FILE} ${LIBRARY_DIRECTORY}
     if [ $? -ne 0 ]
     then
