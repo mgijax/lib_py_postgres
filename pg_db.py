@@ -54,7 +54,7 @@ sharedDbManager = None
 
 returnAsSybase = True
 
-autoTranslate = True
+autoTranslate = False
 
 # back-end-specific translations
 autoTranslate_be = False

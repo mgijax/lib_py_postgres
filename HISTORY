@@ -1,7 +1,10 @@
+TAG: lib_py_postgres-tr12069-2
 TAG: lib_py_postgres-tr12069-1
-DATE: 11/21/2016
-STAFF: sc
+DATE: 11/21/2016, 12/1/2016
+STAFF: sc, lec
 CHANGES: pg_db.py - setAutoTranslate* to False
+autoTranslate = False
+autoTranslate_be = False
 
 TAG: lib_py_postgres-tr12069-BP
 DATE: 11/21/2016
