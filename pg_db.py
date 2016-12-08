@@ -3,6 +3,8 @@
 #	MySQL and Postgres interaction) in a manner analagous to our existing
 #	db.py module (used for Sybase interaction)
 #
+# 11/21/2016 - TR12069 setAutoTranslate* to False
+#
 # 10/22/2014	ks/lec
 #	- TR11750/postgres
 #
@@ -52,7 +54,7 @@ sharedDbManager = None
 
 returnAsSybase = True
 
-autoTranslate = True
+autoTranslate = False
 
 # back-end-specific translations
 autoTranslate_be = False
@@ -61,12 +63,12 @@ commandLogFile = None
 
 ###--- Functions ---###
 
-def setAutoTranslate (on = True):
+def setAutoTranslate (on = False):
 	global autoTranslate
 	autoTranslate = on
 	return
 
-def setAutoTranslateBE (on = True):
+def setAutoTranslateBE (on = False):
 	global autoTranslate_be
 	autoTranslate_be = on
 	return
