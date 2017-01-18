@@ -1,4 +1,10 @@
-7 TAG: lib_py_postgres-6-0-7-1
+TAG: lib_py_postgres-6-0-8-?
+DATE: 01/18/2017
+STAFF: lec
+CHANGES: 
+TR12069/obsolete db.setTranlsation functions/variables
+
+TAG: lib_py_postgres-6-0-7-1
 DATE: 12/8/2016
 STAFF: sc
 CHANGES: merge tr12069 to trunk
