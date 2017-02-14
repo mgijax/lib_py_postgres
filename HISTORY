@@ -1,5 +1,5 @@
-TAG: lib_py_postgres-6-0-8-?
-DATE: 01/18/2017
+TAG: lib_py_postgres-6-0-8-1
+DATE: 01/18/2017, 02/14/2017
 STAFF: lec
 CHANGES: 
 TR12069/obsolete db.setTranlsation functions/variables
