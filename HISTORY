@@ -1,8 +1,8 @@
-TAG: pgdbutilities-6-0-13-?
-DATE: 05/21/2018
+TAG: lib_py_postgres-6-0-13-1
+DATE: 09/04/2018
 STAFF: lec 
 CHANGES:
-TR12734/MGI_Statistic/MGI_Measurement : remove
+TR12734/GenFeVah merge
 
 TAG: lib_py_postgres-6-0-10-1
 DATE: 5/17/2017
