@@ -48,7 +48,8 @@ fi
 #
 # Compile all Python scripts.
 #
-python -c 'import compileall; compileall.compile_dir(".")'
+#python -c 'import compileall; compileall.compile_dir(".")'
+${PYTHON} -c 'import compileall; compileall.compile_dir(".")'
 if [ $? -ne 0 ]
 then
     echo "Error compiling Python source"
