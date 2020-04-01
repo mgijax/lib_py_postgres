@@ -48,8 +48,7 @@ fi
 #
 # Compile all Python scripts.
 #
-#python -c 'import compileall; compileall.compile_dir(".")'
-${PYTHON} -c 'import compileall; compileall.compile_dir(".")'
+${PYTHON} -m compileall -l -f .
 if [ $? -ne 0 ]
 then
     echo "Error compiling Python source"
@@ -60,12 +59,11 @@ fi
 # Set the proper permissions on the Python files.
 #
 chmod 775 *.py
-chmod 664 *.pyc
 
 #
 # Copy the Python files to the given library directory.
 #
-for FILE in `ls *.py *.pyc`
+for FILE in `ls *.py`
 do
     rm -f ${LIBRARY_DIRECTORY}/${FILE}
     cp -p ${FILE} ${LIBRARY_DIRECTORY}
