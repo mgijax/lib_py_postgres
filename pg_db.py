@@ -1,47 +1,25 @@
-# Module: pg_db.py      (Postgres db module)
-# Purpose: to serve as a wrapper over a dbManager (which itself handles both
-#       MySQL and Postgres interaction) in a manner analagous to our existing
-#       db.py module (used for Sybase interaction)
+# Name: pg_db.py
+# Purpose: to serve as a wrapper over a dbManager which itself handles Postgres interaction
+#       in a manner analagous to our existing db.py module (used for MGI interaction)
 #
-# 01/09/206  lec
-#       TR12069/removing obsolete translation functions/variables
-#
-# 11/21/2016 - TR12069 setAutoTranslate* to False
-#
-# 10/22/2014    ks/lec
-#       - TR11750/postgres
-#
-# 04/09/2012   sc
-#       - returnAsSybase, getReturnAsSybase(), setReturnAsSybase(Boolean)
-#
-# 04/09/2012    lec
-#       - autoTranslate_be; translate_be(); setAutoTranslateBE, setTrace
+# see HISTORY for more details
 #
 
 import os
 import sys
-import types
-import re
 import time
 import dbManager
+import db
 
-# unused globals, but kept for compatability
+# global variables
 
-trace = 0
-sql_client_msg = None
-sql_server_msg = None
-sql_client_msg_threshold = 1
-sql_server_msg_threshold = 1
-sql_cmd_buffer = None
-sql_log_function = None
+# default trace-back
+trace = False
 sql_log_fd = sys.stderr
 
 # named exceptions, kept for compatability
-
 connection_exc = 'pg_db.connection_exc'
 error = 'pg_db.error'
-
-# connection info
 
 # this will set the default password for the default user (mgd_dbo)
 try:
@@ -55,8 +33,8 @@ onlyOneConnection = 1
 targetDatabaseType = 'postgres'
 sharedDbManager = None
 
-returnAsSybase = True
-
+# use the MGI-style python dictionary format, not the postgres format
+returnAsMGI = True
 commandLogFile = None
 
 ###--- Functions ---###
@@ -72,27 +50,20 @@ def __date():
 def __getDbManager():
         if targetDatabaseType == 'postgres':
                 dbmType = dbManager.postgresManager
-        elif targetDatabaseType == 'mysql':
-                dbmType = dbManager.mysqlManager
 
         dbm = dbmType(server, database, user, password)
-        dbm.setReturnAsSybase(returnAsSybase)
+        dbm.setReturnAsMGI(returnAsMGI)
         return dbm
 
 def  executeCopyFrom(
-        file,           # file-like object to read data from.
-                        #   It must have read() AND readline() methods.
+        file,           # file-like object to read data from.  It must have read() AND readline() methods.
         table,          # name of the table to copy data into.
-        sep='\t',       # columns separator expected in the file.
-                        #   Defaults to a tab.
-        #null='\\\N',    # textual representation of NULL in the file.
-        null=r"\N",
-                        #   The default is the two characters string \N.
+        sep='\t',       # columns separator expected in the file.  Defaults to a tab.
+        null=r"\N",     # the default is the two characters string \N.
         size=8192,      # size of the buffer used to read from the file.
-        columns=None):  # iterable with name of the columns to import. The
-                        #  length and types should match the content of the
-                        #  file to read. If not specified, it is assumed
-                        #  that the entire table matches the file structure.
+        columns=None):  # iterable with name of the columns to import.
+                        # the length and types should match the content of the file to read. 
+                        # If not specified, it is assumed that the entire table matches the file structure.
         global sharedDbManager
 
         if not onlyOneConnection:
@@ -116,6 +87,7 @@ def sqlLogAll (**kw):
         msg = [ 'Date/time: %s' % __date(),
                 'Server: %s' % server,
                 'Database: %s' % database,
+                'Database Schema: %s' % databaseSchema,
                 'User: %s' % user,
                 ]
         keys = list(kw.keys())
@@ -124,8 +96,7 @@ def sqlLogAll (**kw):
                 if kw[key] == list:
                         i = 0
                         for item in kw[key]:
-                                msg.append ('%s[%d] : %s' % (key, i,
-                                        str(item)) )
+                                msg.append ('%s[%d] : %s' % (key, i, str(item)) )
                                 i = i + 1
                 else:
                         msg.append ('%s : %s' % (key, str(kw[key])))
@@ -145,6 +116,8 @@ def logCommand (cmd):
 # setters
 
 def set_commandLogFile(s):
+        # only a couple of loads actually use this (search git to find which ones)
+
         global commandLogFile
         commandLogFile = open(s, 'w')
         return
@@ -232,18 +205,16 @@ def set_sqlLogin (user, password, server, database):
 def set_targetDatabaseType (t):
         global targetDatabaseType
         targetDatabaseType = t.lower()
-        if targetDatabaseType not in [ 'postgres', 'mysql' ]:
+        if targetDatabaseType not in [ 'postgres' ]:
                 raise error('Unknown targetDatabaseType: %s' % t)
         return
 
-def setReturnAsSybase (flag         # boolean; True for Sybase-style,
-                                    # ...False if not
+def setReturnAsMGI (flag         # boolean; True for MGI-style, ...False if not
     ):
-    # Purpose: configure to either return Sybase-style
-    #       results (True) or not (False)
+    # Purpose: configure to either return MGI-style results (True) or not (False)
 
-    global returnAsSybase
-    returnAsSybase = flag
+    global returnAsMGI
+    returnAsMGI = flag
     return
 
 def set_sqlLogFunction(f):
@@ -274,21 +245,25 @@ def get_sqlServer():
 def get_sqlDatabase():
         return database
 
+def get_sqlSchemaMgd():
+        return "mgd"
+
+def get_sqlSchemaRadar():
+        return "radar"
+
 def get_targetDatabaseType (t):
         return targetDatabaseType
 
-def getReturnAsSybase ():
-    # Purpose: return the flag for whether our results are Sybase-style
-    #       (True) or not (False)
+def getReturnAsMGI ():
+    # Purpose: return the flag for whether our results are MGI-style (True) or not (False)
     # Returns: boolean
 
-    return returnAsSybase
+    return returnAsMGI
 
 # main method
 
 def sql (command, parser = 'auto', **kw):
-        # return type is dependent on 'parser' and on the value of
-        # the global returnAsSybase
+        # return type is dependent on 'parser' and on the value of the global returnAsMGI
         global sharedDbManager
 
         if not onlyOneConnection:
@@ -332,7 +307,10 @@ def sql (command, parser = 'auto', **kw):
 
         i = 0
         while (i < len(command)):
+
                 cmd = command[i]
+
+                # 'auto' or None; default is 'auto'
                 psr = parser[i]
 
                 selectPos = cmd.find('select')
@@ -343,10 +321,14 @@ def sql (command, parser = 'auto', **kw):
                 if rowCount and rowCount[i] and (selectPos >= 0):
                         cmd = cmd + ' limit %d' % rowCount[i]
 
+                # if trace = True
+                # write "cmd" to stderror
+                # write "psr" to stderror : off on purpose; turn on for debugging
                 if trace:
                         sys.stderr.write ('%s\n' % str(cmd))
                         #sys.stderr.write ('pg parser: %s\n' % str(psr))
 
+                # if desired, a commandLogFile can be written to
                 logCommand(cmd)
                 results = dbm.execute(cmd)
 
@@ -366,92 +348,26 @@ def sql (command, parser = 'auto', **kw):
                 #return resultSets[0]
         return resultSets
 
+def bcp(bcpFile, table, delimiter='\\t', schema='mgd', setval=None, setkey=None):
+    # BCP bcpFile into table using delimiter for column seperation
+    # use PG_DBUTILS_BCP and makes an os call
+    # all python data loads use PG_DBUTILS_BCP and could be converted to use this method
+    # schema default = 'mgd'
+ 
+        cmd = '%s %s %s %s %s %s "%s" "\\n" %s' % \
+                (
+                os.environ['PG_DBUTILS_BCP'], db.get_sqlServer(), db.get_sqlDatabase(), \
+                table, os.path.dirname(bcpFile), os.path.basename(bcpFile), delimiter, schema
+                )
+        db.commit()
+        os.system(cmd)
 
-def bcp(inputFileName,
-        table,
-        delimiter='\\t',
-        schema='mgd',
-        disableTriggers=False):
-    """
-    BCP inputFile into table
-        using delimiter for column seperation
-
-        NOTE: disabling triggers locks entire table for
-                other connections during transaction
-                until commit or rollback
-    """
-
-    if schema:
-        table = '%s.%s' % (schema, table)
-
-    bcpCommand = "copy %s from STDIN with null as '' delimiter as E'%s' " % \
-        (table, delimiter)
-
-
-    # open file for STDIN read
-    inputFile = open(inputFileName, 'r')
-
-    
-    if disableTriggers:
-        disableTrigger = "ALTER TABLE %s DISABLE TRIGGER USER" % \
-            (table)
-        sql(disableTrigger, None)
-        
-    try:
-        cur = sharedDbManager.sharedConnection.cursor()
-        cur.copy_expert(bcpCommand, inputFile)
-    finally:
-        inputFile.close()
-
-    if disableTriggers:
-        enableTrigger = "ALTER TABLE %s ENABLE TRIGGER USER" % \
-            (table)
-        sql(enableTrigger, None)
-
-
-# record of 'create index' commands by table
-#       logged after every disableIndices() call
-#       used by reenableIndices()
-INDEX_CREATE_COMMANDS = {}
-
-def disableIndices(table):
-    """
-    Disable all indices on table
-        to be restored by reenableIndices()
-    """
-    global INDEX_CREATE_COMMANDS
-    table = table.lower()
-    
-    # find current indices
-    results = sql("""select indexname, indexdef 
-        from pg_indexes 
-        where tablename='%s'
-    """, "auto")
-
-    INDEX_CREATE_COMMANDS[table] = []
-
-    for result in results:
-        INDEX_CREATE_COMMANDS[table].append(result['indexdef'])
-        sql("DROP INDEX %s" % results['indexname'], None)
-    
-
-
-def reenableIndices(table):
-    """
-    re-enable indices on table
-        only after a call to disableIndices()
-        on the same table
-    """
-    table = table.lower()
-
-    if table not in INDEX_CREATE_COMMANDS:
-        raise Exception("""
-            Cannot re-enable indices for %s. No record of disabled indices
-        """ % table)
-
-    for createCommand in INDEX_CREATE_COMMANDS[table]:
-        sql(createCommand, None)
-
+        # will set the next auto-sequence value, if provided
+        if setval != None and setkey != None:
+                db.sql(''' select setval('%s', (select max(%s) from %s)) ''' % (setval, setkey, table), None)
+                db.commit()
+                # used for debugging
+                #db.sql(''' select last_value from %s ''' % (setval), None)
 
 def commit():
         if sharedDbManager:
@@ -461,10 +377,10 @@ def commit():
 ###--- initialization ---###
 
 # list of (environment variable name, function to call with its value)
-# so we can easily pick up default settings from the environment.  Note that
-# later options override earlier ones, if multiple environment variables are
-# available.  So, put preferred ones last.  Also note that settings for the
-# user should come before those for a password file.
+# so we can easily pick up default settings from the environment.  
+# Note that later options override earlier ones, if multiple environment variables are available.  
+# So, put preferred ones last.  Also note that settings for the user should come before those for a password file.
+
 environSettings = [
         ('PG_DBSERVER', set_sqlServer),
         ('PG_DBNAME', set_sqlDatabase),

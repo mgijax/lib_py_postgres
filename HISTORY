@@ -1,3 +1,13 @@
+TAG: lib_py_postgres-6-0-22-?
+DATE: 11/24/2023
+STAFF: lec
+wts2-1311/fl2-594/improve lib_py_postgres
+dbManager.py: remove MySQL
+pg_db.py : 
+        change "Sybase" -> "MGI"
+        delete: disableIndices, reenableIndices
+        bcp(): now calls PG_DBUTILS_BCP
+
 TAG: lib_py_postgres-6-0-16-1
 DATE: 08/21/2020
 STAFF: lec
@@ -160,10 +170,16 @@ CHANGES:
 TAG: lib_py_postgres-5-0-0-8
 TAG: lib_py_postgres-5-0-0-7
 DATE: 06/20/2012, 06/25/2012
-STAFF: 
+STAFF: lec
 CHANGES:
 1) pg_db.py - update translate_be()
 2) dbManager - TR10994/postgres cleanup - exporter
+# 06/25/2012    lec
+#       - TR10994/postgres cleanup - exporter
+#       we are removing the exporter/bin/dbManger.py and replacing it with
+#       this library.  during comparisons of the dbManger/library and the
+#       dbManager/exporter, we found one "bug"...'import psycopg2' appeared
+#       twice near the try/except block.
 
 TAG: lib_py_postgres-5-0-0-6
 DATE: 05/21/2012

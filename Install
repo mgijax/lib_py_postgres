@@ -3,15 +3,12 @@
 #  Install
 ###########################################################################
 #
-#  Purpose:  This script compiles all *.py files and copies both the *.py
-#            and the *.pyc files to the given directory.
+#  Purpose:  This script compiles all *.py files and copies *.py and *.pyc files to the given directory.
 #
 #  Usage:  Install <library_directory>
 #
 #          where
-#
-#              library_directory is the full path of the directory where
-#                                the *.py and *.pyc files are copied.
+#              library_directory is the full path of the directory where the *.py and *.pyc files are copied.
 #
 ###########################################################################
 
